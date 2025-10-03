@@ -1,5 +1,5 @@
 import { urls } from "@/config/urls";
-import { useConfigStore } from "@/store/configStore";
+import { useConfigStore } from "@/store/config-store";
 // import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 

@@ -1,5 +1,5 @@
 import { useToast } from "@/components/ui/toast";
-import { useConfigStore } from "@/store/configStore";
+import { useConfigStore } from "@/store/config-store";
 import { useEffect } from "react";
 import type { AxiosBaseQueryErrorResponse } from "./useMutation"; // Adjust path if needed
 

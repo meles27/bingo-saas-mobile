@@ -1,4 +1,4 @@
-import { useConfigStore } from "@/store/configStore";
+import { useConfigStore } from "@/store/config-store";
 
 export function formatPrice(
   amount: number | string,
