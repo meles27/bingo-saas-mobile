@@ -1,11 +1,11 @@
+import { TenantEntity } from "@/types/api/base/tenant.type";
 import { create } from "zustand";
-// import { persist } from 'zustand/middleware';
 
-const config = {
+const initialState = {
   /**
    * UI CONFIGURATIONS
    */
-  PAGE_SIZE: 40,
+  PAGE_SIZE: 10,
   SEARCH_PAGINATION_LIMIT: 1000,
   CURRENCY: "ETB",
   TOAST_ERROR_TIMEOUT: 3000,
@@ -21,44 +21,22 @@ const config = {
   JWT_KEY_NAME: "token",
   user: null,
   SUBDOMAIN_POSITION: 0,
-  tenantSubdomain: "", // Add a property to store the subdomain
+  tenant: null as Partial<TenantEntity> | null,
 };
 
-type ConfigType = typeof config;
+type ConfigState = typeof initialState;
 
-type ConfigStore = ConfigType & {
-  /**
-   * update configuration dynamically
-   */
-  updateConfigValue: <K extends keyof ConfigType>(
+type ConfigActions = {
+  // A simplified, type-safe action to update a configuration value.
+  setConfig: <K extends keyof ConfigState>(
     key: K,
-    value: Partial<ConfigType[K]>
-  ) => unknown;
-  getTenantNamespace: () => string;
-  getPublicNamespace: () => string;
-  setTenantSubDomain: (subdomain: string) => void;
-  getTenantSubDomain: () => string;
+    value: ConfigState[K]
+  ) => void;
 };
 
-export const useConfigStore = create<ConfigStore>((set, get) => ({
-  ...config,
-  updateConfigValue: async (key, value) => {
-    console.log(get);
-    set((state) => ({
-      ...state,
-      [key]: value,
-    }));
-  },
-  setTenantSubDomain: (subdomain) => {
-    set({ tenantSubdomain: subdomain });
-  },
-  getTenantSubDomain() {
-    return get().tenantSubdomain;
-  },
-  getTenantNamespace() {
-    return `tenant-${get().getTenantSubDomain()}`;
-  },
-  getPublicNamespace() {
-    return `public-${get().getTenantSubDomain()}`;
+export const useConfigStore = create<ConfigState & ConfigActions>((set) => ({
+  ...initialState,
+  setConfig: (key, value) => {
+    set({ [key]: value });
   },
 }));

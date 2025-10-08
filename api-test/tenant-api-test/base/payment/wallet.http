@@ -1,0 +1,57 @@
+###
+# get my wallet balance
+GET {{ TENANT_BASE_URL }}/wallet/balance HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
+# get my wallet balance
+GET {{ TENANT_BASE_URL }}/wallet/user/{{userId}}/balance HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
+# deposit (initiate)
+POST {{ TENANT_BASE_URL }}/wallet/deposit HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+{
+  "amount": "5000",
+  "gateway": "telebirr"
+}
+
+
+###
+# deposit manually (cash, admin or cashier only)
+POST {{ TENANT_BASE_URL }}/wallet/deposit/manual HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+{
+  "amount": "130",
+  "userId": "{{ userId }}"
+}
+
+
+###
+# withdraw
+POST {{ TENANT_BASE_URL }}/wallet/withdraw HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+{
+  "amount": 30
+}

@@ -10,7 +10,17 @@ import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
 import { useSidebar } from "@/hooks/base/use-sidebar";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { Bell, Home, Mail, Search, Settings, User } from "lucide-react-native";
+import { useAuthStore } from "@/store/auth-store";
+import { useRouter } from "expo-router";
+import {
+  Bell,
+  Home,
+  Mail,
+  Search,
+  Settings,
+  User,
+  Wallet,
+} from "lucide-react-native";
 import { default as React, useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
@@ -20,18 +30,58 @@ export function AppSidebar() {
   const textColor = useThemeColor({}, "text");
   const mutedColor = useThemeColor({}, "textMuted");
   const borderColor = useThemeColor({}, "border");
+  const a = useAuthStore();
+
+  const router = useRouter();
 
   const navigationItems = [
-    { id: "home", label: "Home", icon: Home },
-    { id: "profile", label: "Profile", icon: User },
-    { id: "messages", label: "Messages", icon: Mail },
-    { id: "search", label: "Search", icon: Search },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "home",
+      label: "Home",
+      icon: Home,
+      onPress: () => router.push("/wallet"),
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: User,
+      onPress: () => router.push("/wallet"),
+    },
+    {
+      id: "messages",
+      label: "Messages",
+      icon: Mail,
+      onPress: () => router.push("/wallet"),
+    },
+    {
+      id: "search",
+      label: "Search",
+      icon: Search,
+      onPress: () => router.push("/wallet"),
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: Bell,
+      onPress: () => router.push("/wallet"),
+    },
+    {
+      id: "wallet",
+      label: "Wallet",
+      icon: Wallet,
+      onPress: () => router.push("/wallet"),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: Settings,
+      onPress: () => router.push("/wallet"),
+    },
   ];
 
   const handleItemPress = (itemId: string) => {
     setActiveItem(itemId);
+    navigationItems.find((item) => item.id === itemId)?.onPress();
     closeSidebar();
   };
 

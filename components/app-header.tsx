@@ -1,4 +1,5 @@
 import { useSidebar } from "@/hooks/base/use-sidebar";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Menu } from "lucide-react-native";
 import React from "react";
@@ -29,7 +30,7 @@ const RenderTitle: React.FC<{
 };
 
 const AppHeader: React.FC<AppHeaderProps> = ({
-  title = "Alpha Betting",
+  title = "Prana App",
   hideTitle = false,
   hideBackButton = false,
   hideMenuButton = false,
@@ -37,10 +38,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   const router = useRouter();
   const { openSidebar } = useSidebar();
 
+  const backgroundColor = useThemeColor({}, "background");
+
   return (
     <View
-      className="flex-row justify-between items-center px-4 py-2 border rounded-3xl mx-2"
-      style={{ borderColor: "rgba(0,0,0,0.1)" }}
+      className="flex flex-row justify-between items-center px-4 py-2 border rounded-3xl mx-2 z-10"
+      style={{ borderColor: "rgba(0,0,0,0.1)", backgroundColor }}
     >
       {/* Back Button */}
       {!hideBackButton && (

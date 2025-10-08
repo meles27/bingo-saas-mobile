@@ -1,0 +1,31 @@
+###
+# LIST SYSTEM-ROLES
+GET {{ SYSTEM_BASE_URL }}/system-roles HTTP/1.1
+
+
+###
+#CREATE SYSTEM-ROLE
+POST {{ SYSTEM_BASE_URL }}/system-roles HTTP/1.1
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+{
+  "name": "Billing Manager",
+  "description": "Responsible for managing subscription plans, invoices, and platform-level billing integrations."
+}
+
+
+###
+# RETRIEVE SYSTEM-ROLE
+GET {{ SYSTEM_BASE_URL }}/system-roles/{{systemRoleId}} HTTP/1.1
+
+
+###
+# UPDATE SYSTEM-ROLE
+PATCH {{ SYSTEM_BASE_URL }}/system-roles/{{systemRoleId}} HTTP/1.1
+
+
+###
+# DELETE SYSTEM-ROLE
+DELETE {{ SYSTEM_BASE_URL }}/system-roles/{{systemRoleId}} HTTP/1.1

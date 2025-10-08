@@ -1,7 +1,7 @@
-import { urls } from "@/config/urls";
-import { useConfigStore } from "@/store/config-store";
-// import { useAuthStore } from "@/store/authStore";
-import axios from "axios";
+import { urls } from '@/config/urls';
+import { useAuthStore } from '@/store/auth-store';
+import { useConfigStore } from '@/store/config-store';
+import axios from 'axios';
 
 // Structure for the specific 422 validation error item
 export type StandardValidationError = {
@@ -31,7 +31,7 @@ export interface AxiosBaseQueryErrorResponse {
 // =================================================================
 const globalAxiosInstance = axios.create({
   baseURL: urls.getGlobalBaseUrl(),
-  withCredentials: true,
+  withCredentials: true
 });
 
 globalAxiosInstance.interceptors.request.use(
@@ -50,38 +50,31 @@ globalAxiosInstance.interceptors.request.use(
 //                      TENANT AXIOS INSTANCE
 // =================================================================
 const tenantAxiosInstance = axios.create({
-  withCredentials: true,
+  withCredentials: true
 });
 
 /**
  * URLs that don't require an access token for the tenant
  */
-// const publicTenantUrls = [urls.getAuthTokenUrl(), urls.getTenantSettingsUrl()];
+const publicTenantUrls = [urls.getAuthTokenUrl(), urls.getTenantSettingsUrl()];
 
 tenantAxiosInstance.interceptors.request.use(
   (config) => {
-    const subdomain = useConfigStore.getState().getTenantSubDomain();
+    const tenant = useConfigStore.getState().tenant;
+    const defaultTenantId = '764d0518-6c72-4393-a4d6-31c40992a7b1';
 
-    if (!subdomain) {
-      // This is a critical error. The app should not be making tenant requests
-      // without a subdomain. You might want to handle this more gracefully.
-      return Promise.reject(new Error("Tenant subdomain is not set."));
+    config.baseURL = urls.getTenantBaseUrl();
+
+    // Your existing logic for tenant-specific headers
+    const token = useAuthStore.getState().token;
+
+    if (!publicTenantUrls.includes(config.url || '')) {
+      if (token && token?.access) {
+        config.headers.Authorization = `Bearer ${token?.access}`;
+      }
     }
 
-    config.baseURL = urls.getTenantBaseUrl(subdomain);
-
-    // // Your existing logic for tenant-specific headers
-    // const token = useAuthStore.getState().token;
-
-    // if (!publicTenantUrls.includes(config.url || "")) {
-    //   if (token && token?.access) {
-    //     config.headers.Authorization = `Bearer ${token?.access}`;
-    //   }
-    // }
-
-    // You might get the tenant ID from the settings or another API call
-    // and set it here if needed.
-    // config.headers["X-Tenant-ID"] = useConfigStore.getState().tenantId;
+    config.headers['X-Tenant-ID'] = tenant?.id || defaultTenantId;
 
     return config;
   },

@@ -1,0 +1,87 @@
+###
+# LIST ROLES
+GET {{ TENANT_BASE_URL }}/roles?search= HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
+# CREATE ROLE
+POST {{ TENANT_BASE_URL }}/roles HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+{
+  "name": "Cashier",
+  "description": "control the in and out of cash (money)"
+}
+
+
+###
+# RETRIEVE ROLE
+GET {{ TENANT_BASE_URL }}/roles/{{ roleId }} HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
+# UPDATE ROLE
+PATCH {{ TENANT_BASE_URL }}/roles/{{ roleId }} HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+{
+  "name": "Cashier"
+}
+
+
+###
+# DELETE ROLE
+DELETE {{ TENANT_BASE_URL }}/roles/{{ roleId }} HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
+# ROLE PERMISSIONS
+GET {{ TENANT_BASE_URL }}/roles/{{ roleId }}/permissions HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
+# ASSIGN PERMISSIONS FOR GIVEN ROLE
+PATCH {{ TENANT_BASE_URL }}/roles/{{ roleId }}/role-permissions HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+{
+  ": [
+    {
+      "permissionId": "fb89a2c0-7129-4dc1-b4ad-c8e57e44c021",
+      "isTemporary": false
+    },
+    {
+      "permissionId": "3299760f-cf9e-4819-b1f7-7f6e6d250108",
+      "isTemporary": false
+    },
+    {
+      "permissionId": "f6116c8c-fbb4-4d0f-bf5d-acfa605f6671",
+      "isTemporary": true
+    }
+  ]
+}

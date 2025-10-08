@@ -1,10 +1,11 @@
 const lightColors = {
   // Base colors
-  background: "#FFFFFF",
+  background: "#f8f7f5",
   foreground: "#000000",
 
   // Card colors
-  card: "#F2F2F7",
+  // card: "#F2F2F7",
+  card: "#eff1e7",
   cardForeground: "#000000",
 
   // Popover colors
@@ -12,7 +13,7 @@ const lightColors = {
   popoverForeground: "#000000",
 
   // Primary colors
-  primary: "#18181b",
+  primary: "#f27f0d",
   primaryForeground: "#FFFFFF",
 
   // Secondary colors
@@ -76,7 +77,7 @@ const lightColors = {
 
 const darkColors = {
   // Base colors
-  background: "#000000",
+  background: "#221910",
   foreground: "#FFFFFF",
 
   // Card colors

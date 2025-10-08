@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Bingo Blitz - Authentication</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#f27f0d",
+              "background-light": "#f8f7f5",
+              "background-dark": "#221910",
+            },
+            fontFamily: {
+              display: ["Plus Jakarta Sans"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .glow-edge {
+        box-shadow: 0 0 15px 0px rgba(242, 127, 13, 0.5),
+          0 0 5px 0px rgba(242, 127, 13, 0.5);
+      }
+      .soft-gradient {
+        background-image: linear-gradient(
+            180deg,
+            rgba(248, 247, 245, 0) 0%,
+            #f8f7f5 85%
+          ),
+          linear-gradient(180deg, rgba(34, 25, 16, 0) 0%, #221910 85%);
+      }
+      .dark .soft-gradient {
+        background-image: linear-gradient(
+          180deg,
+          rgba(34, 25, 16, 0) 0%,
+          #221910 85%
+        );
+      }
+      .light .soft-gradient {
+        background-image: linear-gradient(
+          180deg,
+          rgba(248, 247, 245, 0) 0%,
+          #f8f7f5 85%
+        );
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-[#332213] dark:text-[#E8D9CB]"
+  >
+    <div class="relative flex flex-col min-h-screen w-full overflow-x-hidden">
+      <div class="absolute top-0 left-0 w-full h-1/2">
+        <img
+          alt="Bingo player illustration"
+          class="w-full h-full object-cover"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrpuP4LDjdJ_sU_KNuhei19ZhCXnae0cP0gkJkfyUfrInz5YRJXHbCHFLj0YflzxyL8yYTuIqtkW8R31I3XMh2dwkoH4dkI4ikIfELVvI3KSTB7A959lgG3VCocuc0ua3HPvdcgqYLoecY5MYljHMjZ9bxZkn9JAq09h7mTwJBeuLEYcdaS7EI29zKWuuQXu8FAN9Iu4o0kwO_LsdBtt917dKnU0rghRfe_uYQYxRAQLPXOsywFNUWIoATiZL2C0_pBGXgE4ookPlz"
+        />
+        <div class="absolute inset-0 soft-gradient"></div>
+      </div>
+      <div
+        class="relative z-10 flex flex-col justify-end flex-grow px-6 pb-6 pt-32 text-center"
+      >
+        <div class="flex-grow flex flex-col justify-center items-center">
+          <div class="mb-8">
+            <h1
+              class="text-4xl font-extrabold text-[#332213] dark:text-white tracking-tighter"
+            >
+              Bingo Bash
+            </h1>
+            <p class="text-lg text-[#664C30] dark:text-[#B3A08D] mt-2">
+              Get ready to daub!
+            </p>
+          </div>
+        </div>
+        <div class="w-full max-w-sm mx-auto">
+          <div class="space-y-4">
+            <div class="relative">
+              <span
+                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary"
+                >mail</span
+              >
+              <input
+                class="form-input w-full rounded-xl border-2 border-primary/20 dark:border-primary/30 bg-white/50 dark:bg-black/20 backdrop-blur-sm focus:ring-primary focus:border-primary h-14 pl-12 pr-4 text-[#332213] dark:text-white placeholder:text-[#664C30] dark:placeholder:text-[#B3A08D]"
+                placeholder="Email"
+                type="email"
+              />
+            </div>
+            <div class="relative">
+              <span
+                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary"
+                >lock</span
+              >
+              <input
+                class="form-input w-full rounded-xl border-2 border-primary/20 dark:border-primary/30 bg-white/50 dark:bg-black/20 backdrop-blur-sm focus:ring-primary focus:border-primary h-14 pl-12 pr-4 text-[#332213] dark:text-white placeholder:text-[#664C30] dark:placeholder:text-[#B3A08D]"
+                placeholder="Password"
+                type="password"
+              />
+            </div>
+          </div>
+          <div class="mt-6 flex flex-col space-y-3">
+            <button
+              class="w-full h-14 rounded-xl bg-primary text-white text-lg font-bold tracking-wide glow-edge transform hover:scale-105 transition-transform"
+            >
+              Sign In
+            </button>
+            <button
+              class="w-full h-14 rounded-xl bg-primary/20 dark:bg-primary/30 text-primary font-bold tracking-wide hover:bg-primary/30 dark:hover:bg-primary/40 transition-colors"
+            >
+              Sign Up
+            </button>
+          </div>
+          <div class="mt-8 text-center">
+            <p class="text-sm text-[#664C30] dark:text-[#B3A08D]">
+              Or continue with
+            </p>
+            <div class="mt-4 flex justify-center space-x-4">
+              <button
+                class="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 dark:bg-primary/30 transform hover:scale-105 transition-transform"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="w-8 h-8 text-primary"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    clip-rule="evenodd"
+                    d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+                    fill-rule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+              <button
+                class="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 dark:bg-primary/30 transform hover:scale-105 transition-transform"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="w-7 h-7 text-primary"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M21.998 11.233c0-.704-.063-1.383-.183-2.046H12.2v3.86h5.503c-.237 1.254-.935 2.316-1.983 3.018v2.504h3.216c1.88-1.732 2.96-4.28 2.96-7.136Z"
+                  ></path>
+                  <path
+                    d="M12.2 22.002c2.69 0 4.93-.893 6.57-2.42l-3.215-2.504c-.893.6-2.03.95-3.355.95-2.58 0-4.766-1.74-5.545-4.08H3.203v2.584C4.856 19.67 8.24 22.002 12.2 22.002Z"
+                  ></path>
+                  <path
+                    d="M6.655 13.91c-.18-.54-.28-1.116-.28-1.71s.1-1.17.28-1.71V8.04H3.203c-.63 1.25-.976 2.674-.976 4.16s.346 2.91.976 4.16l3.452-2.45Z"
+                  ></path>
+                  <path
+                    d="M12.2 6.182c1.47 0 2.78.51 3.81 1.47l2.85-2.85C17.125 3.12 14.89.998 12.2.998 8.24.998 4.856 3.33 3.203 6.09l3.452 2.45c.78-2.34 2.965-4.08 5.545-4.08Z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
