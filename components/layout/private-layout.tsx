@@ -7,7 +7,7 @@ export default function PrivateLayout() {
 
   // if not authenticated, redirect to login
   if (!isAuthenticated()) {
-    return <Redirect href="/(auth)/login" />;
+    return <Redirect href="/(auth)/signin" />;
   }
 
   // if authenticated, render nested screens

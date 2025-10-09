@@ -4,7 +4,6 @@ import { tenantAxiosInstance } from "@/utils/interceptors";
 import type { JwtPayload } from "jwt-decode";
 import { jwtDecode } from "jwt-decode";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export interface AuthToken {
   access: string;
@@ -84,7 +83,14 @@ const initialAsyncState: AsyncState = {
 };
 
 const initialState = {
-  token: { access: "", refresh: "" },
+  // token: { access: "", refresh: "" },
+  token: {
+    access:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk4YjQxY2M2LTE1YzYtNGI3YS04OWU5LWQ3MTA4NzY3MzcyZCIsInVzZXJuYW1lIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJtZWxlcyIsImxhc3ROYW1lIjoiaGFpbGVzZWxhc3NpZSIsInN0YXR1cyI6ImFjdGl2ZSIsInRlbmFudElkIjoiNzY0ZDA1MTgtNmM3Mi00MzkzLWE0ZDYtMzFjNDA5OTJhN2IxIiwic3ViZG9tYWluIjoiYmV6YS1idXJnZXIiLCJpYXQiOjE3NTk5OTMzMDMsImV4cCI6MTc2MDU5ODEwM30.Op8eyQO7SnKORQMxN0_0qpvjcpblM2F4XUtOsvE1lHY",
+
+    refresh:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk4YjQxY2M2LTE1YzYtNGI3YS04OWU5LWQ3MTA4NzY3MzcyZCIsInVzZXJuYW1lIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJtZWxlcyIsImxhc3ROYW1lIjoiaGFpbGVzZWxhc3NpZSIsInN0YXR1cyI6ImFjdGl2ZSIsInRlbmFudElkIjoiNzY0ZDA1MTgtNmM3Mi00MzkzLWE0ZDYtMzFjNDA5OTJhN2IxIiwic3ViZG9tYWluIjoiYmV6YS1idXJnZXIiLCJpYXQiOjE3NTk5OTMzMDMsImV4cCI6MTc2MjU4NTMwM30.eb6r18Dkb8MuN6BXg5vaclLqAYXce5yxuCLEpAqMLWo",
+  },
   user: null,
   isSystemUser: false,
   permissions: null,

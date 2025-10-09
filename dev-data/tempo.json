@@ -1,0 +1,12 @@
+{
+  "event": "t:welcome",
+  "status": "info",
+  "timestamp": "2025-10-09T11:58:08.542Z",
+  "payload": {
+    "message": "Welcome meles! You are connected to tenant '764d0518-6c72-4393-a4d6-31c40992a7b1'.",
+    "user": {
+      "id": "98b41cc6-15c6-4b7a-89e9-d7108767372d",
+      "email": "meleshaileselassie05@gmail.com"
+    }
+  }
+}

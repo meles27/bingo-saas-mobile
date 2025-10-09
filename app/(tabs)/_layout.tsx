@@ -5,7 +5,7 @@ import { PlatformPressable } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { Tabs } from "expo-router";
-import { Gamepad, Home, Search, User } from "lucide-react-native";
+import { Gamepad, Home, Play, Search, User } from "lucide-react-native";
 import React from "react";
 import { Platform, StyleSheet } from "react-native";
 
@@ -60,6 +60,16 @@ export default function TabLayout() {
             title: "Home",
             tabBarIcon: ({ color }) => (
               <Icon name={Home} size={24} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="play"
+          options={{
+            title: "Play",
+            tabBarIcon: ({ color }) => (
+              <Icon name={Play} size={24} color={color} />
             ),
           }}
         />

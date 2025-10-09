@@ -33,7 +33,6 @@ import {
 } from "lucide-react-native";
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const languageOptions: PickerOption[] = [
   { label: "English", value: "en" },
@@ -68,7 +67,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <ScrollView>
         <View style={styles.container}>
           {/* Profile Header */}
@@ -184,7 +183,7 @@ export default function ProfileScreen() {
           </Button>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

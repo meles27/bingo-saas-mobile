@@ -1,7 +1,7 @@
-import { urls } from '@/config/urls';
-import { useAuthStore } from '@/store/auth-store';
-import { useConfigStore } from '@/store/config-store';
-import axios from 'axios';
+import { urls } from "@/config/urls";
+import { useAuthStore } from "@/store/auth-store";
+import { useConfigStore } from "@/store/config-store";
+import axios from "axios";
 
 // Structure for the specific 422 validation error item
 export type StandardValidationError = {
@@ -31,7 +31,7 @@ export interface AxiosBaseQueryErrorResponse {
 // =================================================================
 const globalAxiosInstance = axios.create({
   baseURL: urls.getGlobalBaseUrl(),
-  withCredentials: true
+  withCredentials: true,
 });
 
 globalAxiosInstance.interceptors.request.use(
@@ -50,7 +50,7 @@ globalAxiosInstance.interceptors.request.use(
 //                      TENANT AXIOS INSTANCE
 // =================================================================
 const tenantAxiosInstance = axios.create({
-  withCredentials: true
+  withCredentials: true,
 });
 
 /**
@@ -61,20 +61,20 @@ const publicTenantUrls = [urls.getAuthTokenUrl(), urls.getTenantSettingsUrl()];
 tenantAxiosInstance.interceptors.request.use(
   (config) => {
     const tenant = useConfigStore.getState().tenant;
-    const defaultTenantId = '764d0518-6c72-4393-a4d6-31c40992a7b1';
+    const defaultTenantId = "764d0518-6c72-4393-a4d6-31c40992a7b1";
 
     config.baseURL = urls.getTenantBaseUrl();
 
     // Your existing logic for tenant-specific headers
     const token = useAuthStore.getState().token;
 
-    if (!publicTenantUrls.includes(config.url || '')) {
+    if (!publicTenantUrls.includes(config.url || "")) {
       if (token && token?.access) {
         config.headers.Authorization = `Bearer ${token?.access}`;
       }
     }
 
-    config.headers['X-Tenant-ID'] = tenant?.id || defaultTenantId;
+    config.headers["X-Tenant-ID"] = tenant?.id || defaultTenantId;
 
     return config;
   },

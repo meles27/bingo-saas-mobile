@@ -8,7 +8,6 @@ import {
   SPACING_SM,
   SPACING_XL,
 } from "@/theme/globals";
-import type { PharmacyListEntity } from "@/types/api/base/pharmacy.type";
 import {
   DoorOpenIcon,
   NewspaperIcon,
@@ -18,7 +17,7 @@ import {
 import React from "react";
 import { FlatList } from "react-native";
 
-const pharmacies: PharmacyListEntity[] = [
+const pharmacies = [
   {
     id: 1,
     name: "GreenLife Pharmacy",

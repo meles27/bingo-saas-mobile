@@ -50,7 +50,12 @@ export const SocketEvent = {
 } as const;
 
 // Type helper to get union of all values
-export type SocketEvent = (typeof SocketEvent)[keyof typeof SocketEvent];
+export type SocketEvent =
+  | (typeof SocketEvent)[keyof typeof SocketEvent]
+  | "connect"
+  | "disconnect"
+  | "connect_error"
+  | "connect_timeout";
 
 /**
  * A standardized payload for error responses.
@@ -80,3 +85,12 @@ export interface SocketPayload<T> {
   /** The core data payload of the message. */
   payload: T;
 }
+/**
+ * A generic type for a socket event handler function.
+ * The consumer of the hook will specify the payload type `T`.
+ *
+ * @template T - The expected type of the data inside the `payload` property. Defaults to `unknown` for safety.
+ */
+export type SocketEventHandler<T = unknown> = (
+  response: SocketPayload<T>
+) => void;

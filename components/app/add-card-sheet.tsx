@@ -11,7 +11,7 @@ import { Dimensions, FlatList, StyleSheet } from "react-native";
 
 const { width: screenWidth } = Dimensions.get("window");
 
-type Value = number | "FREE";
+type Value = number | string;
 
 // --- Types and Helpers (Unchanged) ---
 export type BingoCardData = {
@@ -37,7 +37,7 @@ export const generateBingoCard = (): BingoCardData => {
         (c) => ({ number: c.n, daubed: false })
       )
     );
-  grid[2][2] = { number: "FREE", daubed: true };
+  grid[2][2] = { number: "F", daubed: true };
   return { id: `card_${Date.now()}_${Math.random()}`, grid };
 };
 
