@@ -1,66 +1,82 @@
 import { Progress } from "@/components/ui/progress";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import { BORDER_RADIUS, SPACING_LG, SPACING_SM } from "@/theme/globals";
-import React from "react";
+import { SPACING_LG, SPACING_SM } from "@/theme/globals";
+import React, { useMemo } from "react";
 import { Dimensions, StyleSheet } from "react-native";
 
 const PRIMARY_COLOR = "#7f13ec";
 const { width: screenWidth } = Dimensions.get("window");
-const PADDING = 16;
+const PADDING = 4;
 const GAP = 2;
 const NUM_COLS = 15;
 const CELL_SIZE = (screenWidth - PADDING * 2 - GAP * (NUM_COLS - 1)) / NUM_COLS;
+const TOTAL_NUMBERS = 75;
 
-const calledNumbersMock = new Set(
-  Array.from({ length: 12 }, () => Math.floor(Math.random() * 75) + 1)
-);
+// --- 1. Define the updated props interface ---
+interface CalledNumbersDisplayProps {
+  /** An array of numbers that have been called in the game. */
+  calledNumbers: number[];
+  /** The most recently called number, to be highlighted. */
+  lastCalledNumber?: number | null;
+}
 
-export const CalledNumbersDisplay = () => {
+/**
+ * A display component that renders a grid of 75 numbers, highlighting
+ * all called numbers and giving special prominence to the most recent one.
+ *
+ * @param {CalledNumbersDisplayProps} props - The component props.
+ */
+export const CalledNumbersDisplay = ({
+  calledNumbers = [],
+  lastCalledNumber = null, // Destructure the new prop with a default value
+}: CalledNumbersDisplayProps) => {
+  const calledNumbersSet = useMemo(
+    () => new Set(calledNumbers),
+    [calledNumbers]
+  );
+  const numbersCalledCount = calledNumbersSet.size;
+
   return (
     <View style={styles.container}>
       <View style={styles.progressContainer}>
         <Progress
-          value={16}
+          value={(numbersCalledCount / TOTAL_NUMBERS) * 100}
           height={8}
-          style={{
-            flex: 9,
-          }}
+          style={{ flex: 9 }}
         />
-        <Text
-          style={{
-            fontSize: 14,
-            color: "rgba(255, 255, 255, 0.7)",
-            fontFamily: "Space Grotesk",
-            flex: 1,
-            flexShrink: 0,
-          }}
-        >
-          12/75
+        <Text style={styles.progressText}>
+          {numbersCalledCount}/{TOTAL_NUMBERS}
         </Text>
       </View>
 
       <View style={styles.grid}>
-        {Array.from({ length: 75 }, (_, i) => i + 1).map((num) => {
-          const isCalled = calledNumbersMock.has(num);
+        {Array.from({ length: TOTAL_NUMBERS }, (_, i) => i + 1).map((num) => {
+          // --- 2. Determine the state for each cell ---
+          const isCalled = calledNumbersSet.has(num);
+          const isLastCalled = num === lastCalledNumber;
+
           return (
             <View
               key={num}
               style={[
                 styles.cell,
-                isCalled
-                  ? {
-                      ...styles.calledCell,
-                      borderColor: PRIMARY_COLOR,
-                      backgroundColor: "rgba(127, 19, 236, 0.2)",
-                    }
+                // --- 3. Apply styles with priority ---
+                // The most specific style (last called) comes first.
+                isLastCalled
+                  ? styles.lastCalledCell
+                  : isCalled
+                  ? styles.calledCell
                   : styles.defaultCell,
               ]}
             >
               <Text
                 style={[
                   styles.cellText,
-                  { color: isCalled ? "white" : "rgba(255, 255, 255, 0.3)" },
+                  // Both last called and regularly called numbers get bright text.
+                  isLastCalled || isCalled
+                    ? styles.calledCellText
+                    : styles.defaultCellText,
                 ]}
               >
                 {num}
@@ -79,17 +95,6 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING_SM,
     gap: SPACING_SM,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    fontFamily: "Space Grotesk",
-  },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -98,8 +103,8 @@ const styles = StyleSheet.create({
   cell: {
     width: CELL_SIZE,
     height: CELL_SIZE,
-    // borderRadius: 999,
-    borderRadius: BORDER_RADIUS,
+    // borderRadius: BORDER_RADIUS,
+    borderRadius: SPACING_SM,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -107,21 +112,45 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
   calledCell: {
-    borderWidth: 2,
-    shadowColor: PRIMARY_COLOR,
+    backgroundColor: "rgba(127, 19, 236, 0.2)",
+    borderColor: PRIMARY_COLOR,
+    borderWidth: 1.5,
+  },
+  // --- 4. Add the new, high-visibility style for the last called number ---
+  lastCalledCell: {
+    backgroundColor: PRIMARY_COLOR, // Bright, solid background
+    borderColor: "white", // Contrasting white border
+    borderWidth: 1.5,
+    shadowColor: "white",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10,
   },
   cellText: {
-    fontSize: 12,
+    fontSize: CELL_SIZE > 20 ? 12 : 10,
     fontFamily: "Space Grotesk",
+  },
+  // --- 5. Add distinct text styles for clarity ---
+  defaultCellText: {
+    color: "rgba(255, 255, 255, 0.3)",
+  },
+  calledCellText: {
+    color: "white",
+    fontWeight: "bold",
   },
   progressContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    rowGap: SPACING_LG,
+    gap: SPACING_LG,
+  },
+  progressText: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.7)",
+    fontFamily: "Space Grotesk",
+    flex: 1,
+    flexShrink: 0,
+    textAlign: "right",
   },
 });

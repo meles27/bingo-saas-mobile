@@ -1,3 +1,13 @@
+export const ConnectionStatus = {
+  CONNECTED: "connected",
+  DISCONNECTED: "disconnected",
+  CONNECTING: "connecting",
+  ERROR: "error",
+} as const;
+
+export type ConnectionStatus =
+  (typeof ConnectionStatus)[keyof typeof ConnectionStatus];
+
 /**
  * Standardized status codes for all socket events.
  */
@@ -26,7 +36,7 @@ export const SocketEvent = {
   T_UPDATE_USER: "t:update-user",
   T_DELETE_USER: "t:delete-user",
 
-  // Game related
+  T_GAME_SYNC: "t:game-sync",
   T_GAME_SCHEDULED: "t:game-scheduled",
   T_GAME_STARTED: "t:game-started",
   T_NEW_NUMBER_CALLED: "t:game-new_number",

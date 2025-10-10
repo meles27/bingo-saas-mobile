@@ -1,32 +1,16 @@
+import { useSocketStore } from "@/store/socket-store";
 import { io, Socket } from "socket.io-client";
-
-/**
- * Enum for the hook's internal connection status.
- */
-export enum ConnectionStatus {
-  CONNECTED = "connected",
-  DISCONNECTED = "disconnected",
-  CONNECTING = "connecting",
-  ERROR = "error",
-}
+import { ConnectionStatus } from "./socket.schema";
 
 interface ManagedSocket {
   socket: Socket;
   refCount: number;
-  status: ConnectionStatus;
-  error: Error | null;
 }
 
-// The Singleton SocketManager class
 class SocketManager {
   private static instance: SocketManager;
   private sockets = new Map<string, ManagedSocket>();
-  private subscribers = new Map<
-    string,
-    Set<(status: ConnectionStatus, error: Error | null) => void>
-  >();
 
-  // Private constructor to enforce singleton pattern
   private constructor() {}
 
   public static getInstance(): SocketManager {
@@ -36,11 +20,8 @@ class SocketManager {
     return SocketManager.instance;
   }
 
-  /**
-   * Generates a unique key for a connection based on its properties.
-   */
-  private getKey(url: string, namespace?: string, token?: string): string {
-    return `${url}-${namespace || ""}-${token || ""}`;
+  public getKey(url: string, namespace?: string, token?: string): string {
+    return [url, namespace || "default", token || "anonymous"].join("|");
   }
 
   public getSocket(
@@ -48,34 +29,34 @@ class SocketManager {
     namespace?: string,
     token?: string,
     transports: ("polling" | "websocket")[] = ["websocket", "polling"]
-  ): ManagedSocket {
+  ): Socket {
     const key = this.getKey(url, namespace, token);
     let managedSocket = this.sockets.get(key);
 
     if (managedSocket) {
       managedSocket.refCount++;
-    } else {
-      const finalUrl = namespace
-        ? `${url}/${namespace.replace(/^\//, "")}`
-        : url;
-      const newSocket = io(finalUrl, {
-        reconnectionAttempts: 5,
-        reconnectionDelay: 5000,
-        transports,
-        auth: token ? { token } : undefined,
-      });
-
-      managedSocket = {
-        socket: newSocket,
-        refCount: 1,
-        status: ConnectionStatus.CONNECTING,
-        error: null,
-      };
-
-      this.sockets.set(key, managedSocket);
-      this.addDefaultListeners(key, managedSocket);
+      return managedSocket.socket;
     }
-    return managedSocket;
+
+    const finalUrl = namespace ? `${url}/${namespace.replace(/^\//, "")}` : url;
+    const newSocket = io(finalUrl, {
+      // reconnectionAttempts: 5,
+      reconnectionDelay: 5000,
+      transports,
+      auth: token ? { token } : undefined,
+    });
+
+    managedSocket = { socket: newSocket, refCount: 1 };
+    this.sockets.set(key, managedSocket);
+
+    // Immediately set the initial state in the store.
+    // This is crucial to ensure the hook sees the 'connecting' state on its first render.
+    useSocketStore
+      .getState()
+      .setConnectionState(key, ConnectionStatus.CONNECTING);
+    this.addDefaultListeners(key, newSocket);
+
+    return newSocket;
   }
 
   public releaseSocket(url: string, namespace?: string, token?: string): void {
@@ -87,58 +68,29 @@ class SocketManager {
       if (managedSocket.refCount <= 0) {
         managedSocket.socket.disconnect();
         this.sockets.delete(key);
-        this.subscribers.delete(key);
+        // The final, authoritative action is to remove the connection from the store.
+        useSocketStore.getState().removeConnection(key);
       }
     }
   }
 
-  public subscribe(
-    key: string,
-    callback: (status: ConnectionStatus, error: Error | null) => void
-  ) {
-    if (!this.subscribers.has(key)) {
-      this.subscribers.set(key, new Set());
-    }
-    this.subscribers.get(key)!.add(callback);
-  }
-
-  public unsubscribe(
-    key: string,
-    callback: (status: ConnectionStatus, error: Error | null) => void
-  ) {
-    this.subscribers.get(key)?.delete(callback);
-  }
-
-  private notifySubscribers(
-    key: string,
-    status: ConnectionStatus,
-    error: Error | null
-  ) {
-    this.subscribers.get(key)?.forEach((cb) => cb(status, error));
-  }
-
-  private addDefaultListeners(key: string, managedSocket: ManagedSocket) {
-    const { socket } = managedSocket;
+  private addDefaultListeners(key: string, socket: Socket) {
+    const { setConnectionState } = useSocketStore.getState();
 
     socket.on("connect", () => {
-      managedSocket.status = ConnectionStatus.CONNECTED;
-      managedSocket.error = null;
-      this.notifySubscribers(key, managedSocket.status, managedSocket.error);
+      setConnectionState(key, ConnectionStatus.CONNECTED);
     });
 
     socket.on("disconnect", () => {
-      managedSocket.status = ConnectionStatus.DISCONNECTED;
-      managedSocket.error = null;
-      this.notifySubscribers(key, managedSocket.status, managedSocket.error);
+      // Simply report the disconnected state. The `releaseSocket` method handles the
+      // actual cleanup and removal from the store.
+      setConnectionState(key, ConnectionStatus.DISCONNECTED);
     });
 
     socket.on("connect_error", (err: Error) => {
-      managedSocket.status = ConnectionStatus.ERROR;
-      managedSocket.error = err;
-      this.notifySubscribers(key, managedSocket.status, managedSocket.error);
+      setConnectionState(key, ConnectionStatus.ERROR, err);
     });
   }
 }
 
-// Export a single instance for the entire application
 export const socketManager = SocketManager.getInstance();

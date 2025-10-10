@@ -14,7 +14,7 @@ export function formatPrice(
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 3,
   });
 

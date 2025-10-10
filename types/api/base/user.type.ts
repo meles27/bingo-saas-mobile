@@ -1,5 +1,6 @@
-import type { UserStatusValue } from '@/constants/user-status.const';
-import type { BaseQueryParams } from '.';
+import type { BaseQueryParams } from ".";
+
+export type UserStatus = "active" | "suspended";
 
 export interface UserEntity {
   id: string;
@@ -8,7 +9,7 @@ export interface UserEntity {
   email: string;
   username: string;
   image: string | null;
-  status: UserStatusValue;
+  status: UserStatus;
   imageId: string | null;
   lastLogin: string;
   dateJoined: string;
@@ -23,7 +24,7 @@ export interface UserProfileEntity {
   email: string;
   username: string;
   image: string | null;
-  status: UserStatusValue;
+  status: UserStatus;
   image_public_id: string | null;
   lastLogin: string;
   dateJoined: string;
@@ -33,5 +34,5 @@ export interface UserProfileEntity {
 
 export type UserQueryParamsIface = BaseQueryParams & {
   includeDeleted?: boolean;
-  status?: UserStatusValue;
+  status?: UserStatus;
 };

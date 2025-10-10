@@ -1,8 +1,8 @@
-import BingoNightScreen from "@/screens/bingo-night-screen";
+import PlayBingoScreen from "@/screens/play-bingo-screen";
 import React from "react";
 
 const Play = () => {
-  return <BingoNightScreen />;
+  return <PlayBingoScreen />;
 };
 
 export default Play;

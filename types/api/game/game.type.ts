@@ -1,6 +1,6 @@
-import type { RoundStatus } from './round.type';
+import type { RoundStatus } from "./round.type";
 
-export type GameStatus = 'pending' | 'active' | 'completed' | 'cancelled';
+export type GameStatus = "pending" | "active" | "completed" | "cancelled";
 
 export interface GameListEntity {
   id: string;
@@ -59,4 +59,49 @@ export interface GameQueryParamsIface {
   search?: string;
   entryFee?: string;
   status?: GameStatus;
+}
+
+export interface GameSyncStateEntity {
+  activeGames: {
+    game: {
+      id: string;
+      serial: number;
+      description: string;
+      status: GameStatus;
+      prize: string;
+      entryFee: string;
+      startedAt: string; // ISO timestamp
+      endedAt: string | null;
+      currency: string;
+      patterns: {
+        id: string;
+        name: string;
+        description: string;
+        coordinates: [number, number][];
+        createdAt: string;
+        updatedAt: string;
+      }[];
+    };
+    lastNumberCalled: number;
+    calledNumbers: number[];
+  }[];
+  nextScheduledGame: null | {
+    id: string;
+    serial: number;
+    description: string;
+    status: string;
+    prize: string;
+    entryFee: string;
+    startedAt: string;
+    endedAt: string | null;
+    currency: string;
+    patterns: {
+      id: string;
+      name: string;
+      description: string;
+      coordinates: [number, number][];
+      createdAt: string;
+      updatedAt: string;
+    }[];
+  };
 }

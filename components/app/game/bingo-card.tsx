@@ -78,14 +78,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
-    // overflow: "hidden",
     marginBottom: 12,
   },
   blurView: {
     ...StyleSheet.absoluteFillObject,
   },
   content: {
-    padding: 12,
+    padding: 6,
   },
   cardHeader: {
     flexDirection: "row",

@@ -1,5 +1,5 @@
 import { urls } from "@/config/urls";
-import { UserProfileEntity } from "@/types/api/base/user.type";
+import { UserProfileEntity, UserStatus } from "@/types/api/base/user.type";
 import { tenantAxiosInstance } from "@/utils/interceptors";
 import type { JwtPayload } from "jwt-decode";
 import { jwtDecode } from "jwt-decode";
@@ -9,8 +9,6 @@ export interface AuthToken {
   access: string;
   refresh: string;
 }
-
-export type UserStatus = "active" | "suspended";
 
 export type PermissionScope = string[];
 

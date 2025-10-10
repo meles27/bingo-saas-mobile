@@ -1,5 +1,6 @@
 import { ToastProvider } from "@/components/ui/toast";
 import { useAuthStore } from "@/store/auth-store";
+// import { initializeSocketManagerSync } from "@/store/socket-store";
 import { ThemeProvider } from "@/theme/theme-provider";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
