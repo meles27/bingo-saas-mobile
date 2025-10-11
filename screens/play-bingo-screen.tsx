@@ -4,14 +4,18 @@ import { CalledNumbersDisplay } from "@/components/app/game/called-numbers-displ
 import { ParticleBackground } from "@/components/app/game/particle-background";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import { useSocket } from "@/hooks/base/api/use-socket";
+import { urls } from "@/config/urls";
+import { useQuery } from "@/hooks/base/api/useQuery";
 import { useGameSubscription } from "@/hooks/game/use-game-subscription";
 import { useAuthStore } from "@/store/auth-store";
 import { SPACING_SM } from "@/theme/globals";
+import { GameSyncStateEntity } from "@/types/api/game/game.type";
+import { useFocusEffect } from "expo-router";
 import { Plus, Send } from "lucide-react-native";
-import React from "react";
-import { FlatList, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 
 const PRIMARY_COLOR = "#7f13ec";
 const BACKGROUND_COLOR = "#191022";
@@ -70,41 +74,84 @@ const cardsData = [
 export default function PlayBingoScreen() {
   const token = useAuthStore((state) => state.token?.access);
   const tenantId = "764d0518-6c72-4393-a4d6-31c40992a7b1";
-  const sock = useSocket({
-    namespace: `/tenant-${tenantId}`,
-    token,
-  });
+  const activeGameQuery = useQuery<GameSyncStateEntity>(
+    urls.getActiveGameUrl()
+  );
+  const [activeGame, setActiveGame] = useState<
+    GameSyncStateEntity["activeGame"] | null
+  >(null);
 
-  const { status, activeGames, nextScheduledGame } = useGameSubscription({
+  console.log("re-render");
+  const {
+    status,
+    activeGame: game,
+    nextScheduledGame,
+  } = useGameSubscription({
     tenantId,
     token,
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      activeGameQuery.refetch();
+    }, [])
+  );
+
+  useEffect(() => {
+    if (activeGameQuery.isSuccess) {
+      setActiveGame(activeGameQuery.data?.activeGame);
+    }
+  }, [activeGameQuery.isSuccess]);
+
+  useEffect(() => {
+    setActiveGame(game || null);
+  }, [game]);
+
   return (
     <View style={styles.container}>
       <ParticleBackground />
-      <BingoHeader game={activeGames?.[0]?.game} />
-      <CalledNumbersDisplay
-        calledNumbers={activeGames?.[0]?.calledNumbers || []}
-        lastCalledNumber={activeGames?.[0]?.lastNumberCalled}
-      />
 
-      <FlatList
-        data={cardsData}
-        numColumns={2}
-        renderItem={({ item: card }) => <BingoCard {...card} key={card.id} />}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      {activeGameQuery.isLoading && <ActivityIndicator />}
 
-      {/* FABs */}
-      <Button icon={Send} size="icon" style={[styles.fab, styles.fabLeft]} />
+      {activeGameQuery.isError && (
+        <View>
+          <Text>Error</Text>
+          <Text>{activeGameQuery.error.data?.detail}</Text>
+        </View>
+      )}
 
-      <Button
-        size="icon"
-        style={[styles.fab, styles.fabRight, styles.neonGlow]}
-      >
-        <Icon name={Plus} color="white" size={40} />
-      </Button>
+      {activeGameQuery.isSuccess && (
+        <>
+          <BingoHeader game={activeGame?.game} />
+          <CalledNumbersDisplay
+            calledNumbers={activeGame?.calledNumbers || []}
+            lastCalledNumber={activeGame?.lastNumberCalled}
+          />
+
+          <FlatList
+            data={cardsData}
+            numColumns={2}
+            renderItem={({ item: card }) => (
+              <BingoCard {...card} key={card.id} />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+          />
+
+          {/* FABs */}
+          <Button
+            icon={Send}
+            size="icon"
+            style={[styles.fab, styles.fabLeft]}
+          />
+
+          <Button
+            size="icon"
+            style={[styles.fab, styles.fabRight, styles.neonGlow]}
+          >
+            <Icon name={Plus} color="white" size={40} />
+          </Button>
+        </>
+      )}
     </View>
   );
 }

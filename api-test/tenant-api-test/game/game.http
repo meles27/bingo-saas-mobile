@@ -1,6 +1,6 @@
 ###
 # this is for the games in the single game
-# LIST GAME GAMES
+# LIST GAMES
 GET {{ TENANT_BASE_URL }}/games?gameId={{gameId}} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
@@ -9,7 +9,7 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# CREATE GAME GAME
+# CREATE GAME
 POST {{ TENANT_BASE_URL }}/games HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
@@ -29,7 +29,16 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# RETRIEVE GAME GAME
+# RETRIEVE active GAME
+GET {{ TENANT_BASE_URL }}/games/active-game HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
+# RETRIEVE GAME
 GET {{ TENANT_BASE_URL }}/games/{{ gameId }} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
@@ -139,7 +148,7 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# OPTIONS  GAME GAME
+# OPTIONS  GAME
 OPTIONS {{ TENANT_BASE_URL }}/games/{{ gameId }} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json

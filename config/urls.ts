@@ -71,10 +71,8 @@ export const urls = {
   getPatternUrl: (patternId: string) => `/api/v1/tenant/patterns/${patternId}`,
 
   getGamesUrl: () => "/api/v1/tenant/games",
+  getActiveGameUrl: () => "/api/v1/tenant/games/active-game",
   getGameUrl: (gameId: string) => `/api/v1/tenant/games/${gameId}`,
-
-  getRoundsUrl: () => "/api/v1/tenant/rounds",
-  getRoundUrl: (roundId: string) => `/api/v1/tenant/rounds/${roundId}`,
 
   getCardTemplatesUrl: () => "/api/v1/tenant/card-templates",
   getCardTemplateUrl: (cardTemplateId: string) =>

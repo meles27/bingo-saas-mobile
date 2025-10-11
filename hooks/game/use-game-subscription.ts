@@ -3,12 +3,6 @@ import { GameSyncStateEntity } from "@/types/api/game/game.type";
 import { useEffect, useMemo, useState } from "react";
 import { useSocket } from "../base/api/use-socket";
 
-// Define the shape of the data the hook will provide
-interface GameSubscriptionState {
-  activeGames: GameSyncStateEntity["activeGames"];
-  nextScheduledGame: GameSyncStateEntity["nextScheduledGame"] | null;
-}
-
 // Define the options the hook accepts
 interface UseGameSubscriptionOptions {
   tenantId?: string;
@@ -40,8 +34,8 @@ export const useGameSubscription = ({
   });
 
   // Local state to hold the synchronized game data.
-  const [gameState, setGameState] = useState<GameSubscriptionState>({
-    activeGames: [],
+  const [gameState, setGameState] = useState<GameSyncStateEntity | null>({
+    activeGame: null,
     nextScheduledGame: null,
   });
 
@@ -57,7 +51,7 @@ export const useGameSubscription = ({
       // We only care about successful data pushes from the server.
       if (response.payload) {
         setGameState({
-          activeGames: response.payload.activeGames || [],
+          activeGame: response.payload.activeGame,
           nextScheduledGame: response.payload.nextScheduledGame || null,
         });
       }
@@ -77,8 +71,8 @@ export const useGameSubscription = ({
 
   // Return a clean, easy-to-use object for the consuming component.
   return {
-    status: sock.status, // Expose the raw connection status (e.g., 'connected', 'connecting')
-    activeGames: gameState.activeGames,
-    nextScheduledGame: gameState.nextScheduledGame,
+    status: sock.status,
+    activeGame: gameState?.activeGame,
+    nextScheduledGame: gameState?.nextScheduledGame,
   };
 };

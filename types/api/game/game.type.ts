@@ -62,7 +62,7 @@ export interface GameQueryParamsIface {
 }
 
 export interface GameSyncStateEntity {
-  activeGames: {
+  activeGame: {
     game: {
       id: string;
       serial: number;
@@ -84,24 +84,29 @@ export interface GameSyncStateEntity {
     };
     lastNumberCalled: number;
     calledNumbers: number[];
-  }[];
-  nextScheduledGame: null | {
-    id: string;
-    serial: number;
-    description: string;
-    status: string;
-    prize: string;
-    entryFee: string;
-    startedAt: string;
-    endedAt: string | null;
-    currency: string;
-    patterns: {
+  } | null;
+
+  nextScheduledGame: {
+    game: {
       id: string;
-      name: string;
+      serial: number;
       description: string;
-      coordinates: [number, number][];
-      createdAt: string;
-      updatedAt: string;
-    }[];
-  };
+      status: GameStatus;
+      prize: string;
+      entryFee: string;
+      startedAt: string; // ISO timestamp
+      endedAt: string | null;
+      currency: string;
+      patterns: {
+        id: string;
+        name: string;
+        description: string;
+        coordinates: [number, number][];
+        createdAt: string;
+        updatedAt: string;
+      }[];
+    };
+    lastNumberCalled: number;
+    calledNumbers: number[];
+  } | null;
 }
