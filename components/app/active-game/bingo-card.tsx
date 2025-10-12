@@ -12,6 +12,7 @@ interface BingoCardProps {
   numbers: (number | string)[][];
   calledNumbers: number[];
   isWinner?: boolean;
+  onBingo?: () => void;
 }
 
 export const BingoCard = ({
@@ -19,6 +20,7 @@ export const BingoCard = ({
   numbers,
   calledNumbers,
   isWinner = false,
+  onBingo,
 }: BingoCardProps) => {
   return (
     <View style={styles.cardContainer}>
@@ -26,7 +28,7 @@ export const BingoCard = ({
       <View style={styles.content}>
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle}>Card #{id}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onBingo ? onBingo : undefined}>
             <Badge
               variant={isWinner ? "default" : "secondary"}
               textStyle={{ fontSize: 12, fontWeight: "600" }}
@@ -77,8 +79,10 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(255, 255, 255, 0.5)",
     marginBottom: 12,
+    marginRight: 4,
+    marginLeft: 4,
   },
   blurView: {
     ...StyleSheet.absoluteFillObject,

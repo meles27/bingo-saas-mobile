@@ -61,7 +61,7 @@ export interface GameQueryParamsIface {
   status?: GameStatus;
 }
 
-export interface GameSyncStateEntity {
+interface _GameSyncStateEntity {
   activeGame: {
     game: {
       id: string;
@@ -110,3 +110,5 @@ export interface GameSyncStateEntity {
     calledNumbers: number[];
   } | null;
 }
+
+export type GameSyncStateEntity = Partial<_GameSyncStateEntity>;

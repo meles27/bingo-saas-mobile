@@ -3,8 +3,9 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
 import { useSidebar } from "@/hooks/base/use-sidebar";
+import { useAuthStore } from "@/store/auth-store";
+import { useGameStore } from "@/store/game-store";
 import { SPACING_SM } from "@/theme/globals";
-import { GameSyncStateEntity } from "@/types/api/game/game.type";
 import { formatPrice } from "@/utils/format-price";
 import { BlurView } from "expo-blur";
 import { Menu } from "lucide-react-native";
@@ -14,23 +15,20 @@ import { LiveIndicator } from "./live-indicator";
 
 const PRIMARY_COLOR = "#7f13ec";
 
-// --- 1. Define the props interface for the component ---
-interface BingoHeaderProps {
-  /** The currently active game object. If null, the header can choose to render a placeholder or nothing. */
-  game: GameSyncStateEntity["activeGames"][number]["game"] | null;
-}
-
 /**
  * A sticky header component that displays real-time information about the active bingo game.
  * It receives all its data and actions via props.
  *
  * @param {BingoHeaderProps} props - The component props.
  */
-export const BingoHeader = ({ game }: BingoHeaderProps) => {
+export const BingoHeader = () => {
   const { toggleSidebar } = useSidebar();
+  const access = useAuthStore((state) => state.token?.access);
+
+  const activeGame = useGameStore((state) => state.activeGame);
 
   // --- 2. Gracefully handle the case where there is no active game ---
-  if (!game) {
+  if (!activeGame) {
     // You can return null to render nothing, or return a placeholder skeleton view.
     // Returning null is often the cleanest approach.
     return null;
@@ -39,26 +37,26 @@ export const BingoHeader = ({ game }: BingoHeaderProps) => {
   // Helper to format the prize with a currency symbol if needed (adjust as necessary)
   const formattedPrize = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: game.currency || "USD",
-  }).format(parseFloat(game.prize));
+    currency: activeGame?.game.currency || "USD",
+  }).format(parseFloat(activeGame?.game.prize));
 
   return (
     <View style={styles.stickyHeader}>
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
         <View style={styles.bottomRow}>
-          {/* --- 3. Use dynamic data from the 'game' prop --- */}
+          {/* --- 3. Use dynamic data from the 'activeGame' prop --- */}
           <View style={styles.infoColumn}>
             <Text style={styles.infoLabel}>Prize:</Text>
             <Text style={[styles.infoValue, { color: PRIMARY_COLOR }]}>
-              {formatPrice(game?.prize || 0)}
+              {formatPrice(activeGame?.game?.prize || 0)}
             </Text>
           </View>
 
           <View style={styles.infoColumn}>
             <Text style={styles.infoLabel}>Game Code:</Text>
             <Text style={[styles.infoValue, { color: PRIMARY_COLOR }]}>
-              #{game.serial}
+              #{activeGame?.game.serial}
             </Text>
           </View>
 

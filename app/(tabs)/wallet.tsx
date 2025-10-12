@@ -1,8 +1,8 @@
 import WalletScreen from "@/screens/wallet-screen";
 import React from "react";
 
-const Wallet = () => {
+const WalletTab = () => {
   return <WalletScreen />;
 };
 
-export default Wallet;
+export default WalletTab;

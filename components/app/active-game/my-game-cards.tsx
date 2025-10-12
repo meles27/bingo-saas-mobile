@@ -1,4 +1,3 @@
-import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { urls } from "@/config/urls";
 import { useQuery } from "@/hooks/base/api/useQuery";
 import { useAuthStore } from "@/store/auth-store";
@@ -9,10 +8,9 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
 } from "react-native";
-import { BingoCard } from "./active-game/bingo-card";
+import { BingoCard } from "./bingo-card";
 
 const cardsData = [
   {
@@ -65,19 +63,14 @@ const cardsData = [
   },
 ];
 
-const snapPoint = 0.85;
-
-interface AddCardSheetProps {
-  isVisible: boolean;
-  toggle: () => void;
-}
-
-const AddCardSheet: React.FC<AddCardSheetProps> = (props) => {
+const MyGameCards = () => {
   const userId = useAuthStore((state) => state.user?.id);
   const gameId = useGameStore((state) => state.gameId);
-  const { height } = useWindowDimensions();
 
-  const myCardsQuery = useQuery<any>(urls.getCardTemplatesUrl(), {
+  const myCardsQuery = useQuery<any>(urls.getGameCardsUrl(gameId || ""), {
+    params: {
+      userId,
+    },
     skip: !gameId,
   });
 
@@ -88,14 +81,7 @@ const AddCardSheet: React.FC<AddCardSheetProps> = (props) => {
   }
 
   return (
-    <BottomSheet
-      isVisible={props.isVisible}
-      onClose={props.toggle}
-      snapPoints={[snapPoint]}
-      style={{
-        paddingBottom: height - snapPoint * height,
-      }}
-    >
+    <>
       {myCardsQuery.isLoading && (
         <ActivityIndicator style={styles.activeIndicator} />
       )}
@@ -115,11 +101,11 @@ const AddCardSheet: React.FC<AddCardSheetProps> = (props) => {
           keyExtractor={(item) => item.id.toString()}
         />
       )}
-    </BottomSheet>
+    </>
   );
 };
 
-export default AddCardSheet;
+export default MyGameCards;
 
 const styles = StyleSheet.create({
   activeIndicator: {

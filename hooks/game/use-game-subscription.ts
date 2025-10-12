@@ -1,78 +1,65 @@
-import { SocketEvent } from "@/lib/socket/socket.schema";
+import { SocketEvent, SocketPayload } from "@/lib/socket/socket.schema";
+import { useGameStore } from "@/store/game-store";
 import { GameSyncStateEntity } from "@/types/api/game/game.type";
-import { useEffect, useMemo, useState } from "react";
-import { useSocket } from "../base/api/use-socket";
+import { useEffect, useMemo } from "react";
+import { useSocket } from "../base/api/use-socket"; // Your existing socket hook
 
-// Define the options the hook accepts
 interface UseGameSubscriptionOptions {
   tenantId?: string;
   token?: string;
 }
 
 /**
- * A custom React hook to subscribe to real-time game state for a specific tenant.
- * It encapsulates all the logic for socket connection, event handling, and state management,
- * providing a clean, reactive interface for UI components.
- *
- * @param {UseGameSubscriptionOptions} options - The tenantId and auth token.
- * @returns An object containing the connection status and the latest game state.
+ * A pure synchronization hook. It subscribes to a tenant’s live game updates
+ * and syncs the state into the centralized useGameStore.
+ * It does not return any state itself to prevent unnecessary re-renders.
  */
 export const useGameSubscription = ({
   tenantId,
   token,
 }: UseGameSubscriptionOptions) => {
-  // Memoize the namespace to prevent the useSocket hook from reconnecting on every render.
   const namespace = useMemo(
     () => (tenantId ? `/tenant-${tenantId}` : undefined),
     [tenantId]
   );
 
-  // It will only connect if a namespace is provided.
   const sock = useSocket({
     namespace,
     token,
   });
 
-  // Local state to hold the synchronized game data.
-  const [gameState, setGameState] = useState<GameSyncStateEntity | null>({
-    activeGame: null,
-    nextScheduledGame: null,
-  });
+  // Access store actions without creating a subscription.
+  const { setStatus, setGameState, reset } = useGameStore.getState();
 
-  // The main effect for handling socket events.
+  // Effect to sync connection status to the store.
   useEffect(() => {
-    // Do nothing if the socket is not available (e.g., no tenantId/token).
-    if (!sock.socket) {
-      return;
-    }
+    setStatus(sock.status);
+  }, [sock.status, setStatus]);
 
-    // Define the handler for the comprehensive game state update.
-    const handleGameSync = (response: { payload: GameSyncStateEntity }) => {
-      // We only care about successful data pushes from the server.
-      if (response.payload) {
-        setGameState({
-          activeGame: response.payload.activeGame,
-          nextScheduledGame: response.payload.nextScheduledGame || null,
-        });
+  // Effect to subscribe to game data and sync it to the store.
+  useEffect(() => {
+    // Guard against running without a valid socket.
+    if (!sock.socket) return;
+
+    // The handler that receives data and updates the store.
+    const handleGameSync = (response: SocketPayload<GameSyncStateEntity>) => {
+      // We only care about successful data pushes with a payload.
+      if (response.status === "info" && response.payload) {
+        setGameState(response.payload);
       }
+
+      console.info("current snapshot state", response);
     };
 
-    // Subscribe to the event.
     sock.on<GameSyncStateEntity>(SocketEvent.T_GAME_SYNC, handleGameSync);
 
-    // Cleanup: It's crucial to unsubscribe from the event when the component
-    // unmounts or when the socket instance changes.
+    sock.socket?.onAny((event, response) =>
+      console.log("all type of event,", event, response)
+    );
+    // The cleanup function is critical.
     return () => {
       sock.off(SocketEvent.T_GAME_SYNC, handleGameSync);
+      reset();
     };
-    // This effect depends on the socket instance itself. When it changes (e.g., new tenantId),
-    // the old listeners will be cleaned up, and new ones will be attached.
-  }, [sock]);
-
-  // Return a clean, easy-to-use object for the consuming component.
-  return {
-    status: sock.status,
-    activeGame: gameState?.activeGame,
-    nextScheduledGame: gameState?.nextScheduledGame,
-  };
+  }, [sock.socket, setGameState, reset]); // Depends only on the socket instance itself.
 };

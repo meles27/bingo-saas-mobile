@@ -1,13 +1,9 @@
-import SearchPharmacyCard from "@/components/app/pharmacy/search-pharmacy-card";
 import { Button } from "@/components/ui/button";
+import { Image } from "@/components/ui/image";
 import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import {
-  SPACING_LG,
-  SPACING_MD,
-  SPACING_SM,
-  SPACING_XL,
-} from "@/theme/globals";
+import { SPACING_LG, SPACING_MD, SPACING_SM } from "@/theme/globals";
 import {
   DoorOpenIcon,
   NewspaperIcon,
@@ -140,6 +136,44 @@ const pharmacies = [
   },
 ];
 
+interface SearchPharmacyCardProps {
+  pharmacy: any;
+}
+
+const SearchPharmacyCard: React.FC<SearchPharmacyCardProps> = ({
+  pharmacy,
+}) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        // gap: SPACING_SM,
+        justifyContent: "space-between",
+        marginTop: SPACING_MD,
+      }}
+    >
+      <View style={{ flex: 2 }}>
+        <Text numberOfLines={1} variant="subtitle">
+          {pharmacy.name}
+        </Text>
+        <Text numberOfLines={1} variant="caption">
+          {pharmacy.address}
+        </Text>
+        <Text numberOfLines={1} variant="body">
+          {pharmacy.review_star}
+        </Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Image
+          style={{ borderRadius: 8, flexShrink: 0, flex: 1 }}
+          variant="default"
+          source={{ uri: pharmacy.image_url }}
+        />
+      </View>
+    </View>
+  );
+};
+
 const Search = () => {
   return (
     <View
@@ -183,9 +217,9 @@ const Search = () => {
         data={pharmacies}
         keyExtractor={(item) => item.toString()}
         renderItem={({ item }) => (
-          <View style={{ marginBottom: SPACING_XL }}>
-            <SearchPharmacyCard pharmacy={item} />
-          </View>
+          // <View style={{ marginBottom: SPACING_XL }}>
+          <SearchPharmacyCard pharmacy={item} />
+          // </View>
         )}
       />
     </View>
