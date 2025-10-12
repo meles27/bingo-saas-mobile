@@ -81,8 +81,6 @@ const AddCardSheet: React.FC<AddCardSheetProps> = (props) => {
     skip: !gameId,
   });
 
-  console.log(userId, gameId);
-
   if (!gameId) {
     return null;
   }

@@ -1,5 +1,5 @@
 import MyWallet from "@/components/app/wallet/my-wallet";
-import { JsonViewer } from "@/components/json-viewer";
+import { TransactionItem } from "@/components/app/wallet/transaction-item";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { ScrollView } from "@/components/ui/scroll-view";
@@ -8,190 +8,102 @@ import { ToggleGroupSingle } from "@/components/ui/toggle";
 import { View } from "@/components/ui/view";
 import { urls } from "@/config/urls";
 import { useQuery } from "@/hooks/base/api/useQuery";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import {
-  BORDER_RADIUS,
-  SPACING_LG,
-  SPACING_MD,
-  SPACING_SM,
-  SPACING_XL,
-} from "@/theme/globals";
-import { LinearGradient } from "expo-linear-gradient";
-import { Filter, Gift, Plus, Ticket } from "lucide-react-native";
-import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { SPACING_LG, SPACING_MD, SPACING_SM } from "@/theme/globals";
+import { TransactionListEntity } from "@/types/api/base/transaction.type";
+import { Filter } from "lucide-react-native";
+import React, { useMemo, useState } from "react";
+import { ActivityIndicator, StyleSheet } from "react-native";
+import { PaginatedResponse } from "../types/api/base/index";
 
-// --- Mock Data ---
-const transactions = [
-  {
-    id: "1",
-    type: "Entry Fee",
-    description: "Bingo Blitz",
-    amount: -2.0,
-    icon: Ticket,
-    color: "#FFFFFF",
-  },
-  {
-    id: "2",
-    type: "Winnings",
-    description: "Bingo Blitz",
-    amount: 15.0,
-    icon: Plus,
-    color: "#f27f0d",
-  },
-  {
-    id: "3",
-    type: "Bonus",
-    description: "Bingo Blitz",
-    amount: 5.0,
-    icon: Gift,
-    color: "#f27f0d",
-  },
-];
-
-// --- Helper Components ---
-const TransactionItem = ({ item }: { item: (typeof transactions)[0] }) => {
-  const primaryColor = useThemeColor({}, "primary");
-  const primaryLight = useThemeColor(
-    { light: "#f27f0d33", dark: "#f27f0d33" },
-    "primary"
-  );
-  const textColor = useThemeColor({}, "text");
-  const mutedColor = useThemeColor({}, "textMuted");
-
-  return (
-    <View style={[styles.transactionItem, { backgroundColor: primaryLight }]}>
-      <View style={styles.transactionLeft}>
-        <View
-          style={[
-            styles.transactionIconWrapper,
-            { backgroundColor: primaryLight },
-          ]}
-        >
-          <Icon name={item.icon} color={textColor} size={24} />
-        </View>
-        <View>
-          <Text style={[styles.transactionType, { color: textColor }]}>
-            {item.type}
-          </Text>
-          <Text style={[styles.transactionDesc, { color: mutedColor }]}>
-            {item.description}
-          </Text>
-        </View>
-      </View>
-      <Text
-        style={[
-          styles.transactionAmount,
-          { color: item.amount > 0 ? primaryColor : textColor },
-        ]}
-      >
-        {item.amount > 0
-          ? `+$${item.amount.toFixed(2)}`
-          : `-$${Math.abs(item.amount).toFixed(2)}`}
-      </Text>
-    </View>
-  );
-};
-
-// --- Main Screen Component ---
 export default function WalletScreen() {
-  const backgroundColor = useThemeColor({}, "background");
-  const primaryColor = useThemeColor({}, "primary");
-  const textColor = useThemeColor({}, "text");
-  const primaryLight = useThemeColor(
-    { light: "#f27f0d33", dark: "#f27f0d33" },
-    "primary"
-  );
-
   const [activeFilter, setActiveFilter] = useState("All");
   const filterItems = [
     { value: "All", label: "All" },
-    { value: "Deposits", label: "Deposits" },
-    { value: "Withdrawals", label: "Withdrawals" },
+    { value: "Deposits", label: "Deposits" }, // Credits
+    { value: "Withdrawals", label: "Withdrawals" }, // Debits
   ];
 
-  const myWalletQuery = useQuery<any>(urls.getMyWalleteUrl(), {});
+  // --- Data Fetching ---
+  const transactionsQuery = useQuery<PaginatedResponse<TransactionListEntity>>(
+    urls.getTransactionsUrl()
+  );
+
+  // --- Client-Side Filtering Logic ---
+  const filteredTransactions = useMemo(() => {
+    if (!transactionsQuery.data?.results) return [];
+    switch (activeFilter) {
+      case "Deposits":
+        return transactionsQuery.data?.results.filter(
+          (t) => parseFloat(t.amount) > 0
+        );
+      case "Withdrawals":
+        return transactionsQuery.data?.results.filter(
+          (t) => parseFloat(t.amount) < 0
+        );
+      case "All":
+      default:
+        return transactionsQuery.data?.results;
+    }
+  }, [activeFilter, transactionsQuery.data]);
 
   return (
-    <View style={[styles.flex1, { backgroundColor }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <MyWallet />
-        {/* Transactions Section */}
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <MyWallet />
+
+      {/* --- Transactions Section --- */}
+      <View style={styles.transactionsContainer}>
         <View style={styles.transactionsHeader}>
-          <Text variant="title" style={{ color: textColor }}>
-            Recent Transactions
-          </Text>
+          <Text variant="title">Recent Transactions</Text>
           <Button variant="ghost" size="sm">
             <View style={styles.filterButtonContent}>
-              <Text style={{ color: primaryColor }}>Filter</Text>
-              <Icon name={Filter} color={primaryColor} size={16} />
+              <Text>Filter</Text>
+              <Icon name={Filter} size={16} />
             </View>
           </Button>
         </View>
 
-        {/* Transaction Filters */}
         <View style={styles.transactionFilters}>
           <ToggleGroupSingle
             items={filterItems}
             value={activeFilter}
             onValueChange={(value) => value && setActiveFilter(value)}
-            size="default"
-            variant="outline"
           />
         </View>
 
-        {/* Transaction List */}
-        <View style={styles.transactionList}>
-          {transactions.map((item) => (
-            <TransactionItem key={item.id} item={item} />
-          ))}
-        </View>
-        <JsonViewer data={myWalletQuery} />
-      </ScrollView>
+        {/* Transaction List States */}
+        {transactionsQuery.isLoading && <ActivityIndicator />}
 
-      {/* Sticky Footer Gradient */}
-      <LinearGradient
-        colors={[`${backgroundColor}00`, `${backgroundColor}FF`]}
-        style={styles.footerGradient}
-      />
-    </View>
+        {transactionsQuery.isError && (
+          <Text style={styles.errorText}>
+            {transactionsQuery.error.data?.detail ||
+              "Could not load transactions."}
+          </Text>
+        )}
+
+        {transactionsQuery.isSuccess && (
+          <View style={styles.transactionList}>
+            {filteredTransactions.length > 0 ? (
+              filteredTransactions.map((item) => (
+                <TransactionItem key={item.id} transaction={item} />
+              ))
+            ) : (
+              <Text style={styles.emptyText}>No transactions found.</Text>
+            )}
+          </View>
+        )}
+      </View>
+    </ScrollView>
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
-  flex1: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: SPACING_SM,
-    height: 60,
-  },
-  headerTitle: { flex: 1, textAlign: "center" },
-  headerSpacer: { width: 40 },
   scrollContent: {
-    paddingHorizontal: SPACING_MD,
     paddingVertical: SPACING_LG,
-    // gap: SPACING_XL,
+    gap: 32, // Consistent gap between wallet and transactions
   },
-  balanceCard: {
-    borderRadius: BORDER_RADIUS,
-    padding: SPACING_MD,
-    marginBottom: SPACING_LG,
-    alignItems: "center",
+  transactionsContainer: {
+    paddingHorizontal: SPACING_MD,
   },
-  balanceLabel: { fontSize: 14, opacity: 0.8 },
-  balanceAmount: {
-    fontSize: 36,
-    fontWeight: "bold",
-    marginTop: SPACING_SM / 2,
-  },
-  actionButtonsContainer: {
-    flexDirection: "row",
-    gap: SPACING_MD,
-    marginBottom: SPACING_XL,
-  },
-  actionButton: { flex: 1, borderRadius: BORDER_RADIUS },
   transactionsHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -203,36 +115,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: SPACING_SM,
   },
-  transactionFilters: { marginBottom: SPACING_MD, alignItems: "flex-start" },
-  transactionList: { gap: SPACING_SM },
-  transactionItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderRadius: SPACING_SM,
-    padding: SPACING_SM,
+  transactionFilters: {
+    marginBottom: SPACING_MD,
+    alignItems: "flex-start",
   },
-  transactionLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: SPACING_MD,
+  transactionList: {
+    gap: SPACING_SM,
   },
-  transactionIconWrapper: {
-    width: 48,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 999,
+  errorText: {
+    textAlign: "center",
+    color: "red",
+    marginVertical: 20,
   },
-  transactionType: { fontWeight: "600" },
-  transactionDesc: { fontSize: 14 },
-  transactionAmount: { fontWeight: "600" },
-  footerGradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 20,
-    pointerEvents: "none",
+  emptyText: {
+    textAlign: "center",
+    color: "#a1a1aa",
+    marginVertical: 20,
   },
 });

@@ -1,34 +1,51 @@
 import { Badge } from "@/components/ui/badge";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
+import { useGameStore } from "@/store/game-store";
 import { BlurView } from "expo-blur";
 import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 const PRIMARY_COLOR = "#7f13ec";
 
+type CardStatus = "open" | "disqualified";
+
 interface BingoCardProps {
   id: number;
-  numbers: (number | string)[][];
-  calledNumbers: number[];
+  layout: number[]; // flat array of 25 numbers
   isWinner?: boolean;
+  disabled?: boolean;
+  shade?: boolean;
+  status?: CardStatus;
   onBingo?: () => void;
 }
 
 export const BingoCard = ({
   id,
-  numbers,
-  calledNumbers,
+  layout,
   isWinner = false,
+  disabled = false,
+  shade = true,
+  status = "open",
   onBingo,
 }: BingoCardProps) => {
+  /* --------------------------- GAME STORE --------------------------- */
+  const toggleSelectedNumber = useGameStore(
+    (state) => state.toggleSelectedNumber
+  );
+  const selectedNumbers = useGameStore((state) => state.selectedNumbers);
+
   return (
     <View style={styles.cardContainer}>
       <BlurView intensity={25} tint="dark" style={styles.blurView} />
       <View style={styles.content}>
+        {/* --------------------------- HEADER --------------------------- */}
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle}>Card #{id}</Text>
-          <TouchableOpacity onPress={onBingo ? onBingo : undefined}>
+          <TouchableOpacity
+            onPress={onBingo}
+            disabled={disabled || status === "disqualified"}
+          >
             <Badge
               variant={isWinner ? "default" : "secondary"}
               textStyle={{ fontSize: 12, fontWeight: "600" }}
@@ -38,34 +55,49 @@ export const BingoCard = ({
           </TouchableOpacity>
         </View>
 
+        {/* --------------------------- GRID --------------------------- */}
         <View style={styles.grid}>
           {["B", "I", "N", "G", "O"].map((letter) => (
             <Text key={letter} style={styles.headerCell}>
               {letter}
             </Text>
           ))}
-          {numbers.flat().map((num, index) => {
-            const isFree = num === "FREE";
-            const isCalled = isFree || calledNumbers.includes(num as number);
+
+          {layout.flat().map((num, index) => {
+            const isFree = num === -1;
+            const numValue = Number(num) ?? -1;
+            const isSelected = shade
+              ? selectedNumbers.includes(numValue)
+              : false;
+            const isCellDisabled =
+              disabled || status === "disqualified" || num === -1;
             return (
-              <View
+              <TouchableOpacity
                 key={index}
                 style={[
                   styles.cell,
-                  isCalled ? styles.calledCell : styles.defaultCell,
-                  isCalled && isWinner
+                  isSelected ? styles.selectedCell : styles.defaultCell,
+                  isWinner && isSelected
                     ? {
                         shadowColor: PRIMARY_COLOR,
                         shadowRadius: 8,
                         shadowOpacity: 1,
                       }
                     : {},
+                  isCellDisabled ? { opacity: 0.6 } : {},
                 ]}
+                disabled={isCellDisabled}
+                onPress={() => toggleSelectedNumber(numValue)}
               >
-                <Text style={[styles.cellText, isFree && { fontSize: 10 }]}>
-                  {num}
+                <Text
+                  style={[
+                    styles.cellText,
+                    isFree && { fontSize: num != -1 ? 14 : 10 },
+                  ]}
+                >
+                  {num > 0 ? num : "FREE"}
                 </Text>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
@@ -74,15 +106,13 @@ export const BingoCard = ({
   );
 };
 
+/* --------------------------- STYLES --------------------------- */
 const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.5)",
-    marginBottom: 12,
-    marginRight: 4,
-    marginLeft: 4,
   },
   blurView: {
     ...StyleSheet.absoluteFillObject,
@@ -98,7 +128,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: "700",
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: "Space Grotesk",
   },
   grid: {
@@ -107,14 +137,14 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   headerCell: {
-    width: "18%", // Adjusted for gap
+    width: "18%",
     textAlign: "center",
     color: PRIMARY_COLOR,
     fontWeight: "700",
     fontFamily: "Space Grotesk",
   },
   cell: {
-    width: "18%", // Adjusted for gap
+    width: "18%",
     aspectRatio: 1,
     borderRadius: 4,
     alignItems: "center",
@@ -123,23 +153,12 @@ const styles = StyleSheet.create({
   defaultCell: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
-  calledCell: {
-    backgroundColor: PRIMARY_COLOR,
+  selectedCell: {
+    backgroundColor: "#1abc9c",
   },
   cellText: {
     fontWeight: "700",
     fontSize: 12,
     fontFamily: "Space Grotesk",
-  },
-  bingoButton: {
-    marginTop: 12,
-    height: 40,
-    shadowColor: PRIMARY_COLOR,
-    shadowRadius: 10,
-    shadowOpacity: 0.8,
-  },
-  disabledButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    shadowOpacity: 0,
   },
 });

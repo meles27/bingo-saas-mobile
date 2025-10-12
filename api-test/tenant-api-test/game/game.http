@@ -55,7 +55,11 @@ X-Tenant-Subdomain: {{ subdomain }}
 X-Tenant-ID: {{ tenantId }}
 
 {
-  "prize": "50000"
+  "prize": "50000",
+  "patternIds": [
+    "{{patternId}}",
+    "{{patternId1}}"
+  ]
 }
 
 

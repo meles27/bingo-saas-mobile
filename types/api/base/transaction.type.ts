@@ -19,7 +19,7 @@ interface Cashier {
 export type PaymentStatus = "pending" | "completed" | "failed" | "cancelled";
 export type PaymentGateway = "cash" | "card" | "telebirr" | "chapa" | string;
 
-export interface TransactionEntity {
+export interface TransactionListEntity {
   id: string;
   user: User;
   cashier: Cashier;

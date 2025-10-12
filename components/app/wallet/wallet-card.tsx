@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import { BORDER_RADIUS, SPACING_MD, SPACING_SM } from "@/theme/globals";
+import { SPACING_MD, SPACING_SM } from "@/theme/globals";
 import { UserWalletEntity } from "@/types/api/base/wallet.type";
 import { formatPrice } from "@/utils/format-price";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,6 +23,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+// ActionItem sub-component remains the same, but will inherit new theme colors
 const ActionItem = ({
   icon,
   label,
@@ -56,7 +57,7 @@ export const WalletCard = ({ data }: WalletCardProps) => {
 
   useEffect(() => {
     opacity.value = withTiming(1, { duration: 500 });
-    translateY.value = withSpring(0);
+    translateY.value = withSpring(0, { damping: 12 });
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -68,8 +69,9 @@ export const WalletCard = ({ data }: WalletCardProps) => {
 
   return (
     <Animated.View style={animatedStyle}>
+      {/* NEW: Yellow/Gold gradient for a premium feel */}
       <LinearGradient
-        colors={["#4c1d95", "#7c3aed"]}
+        colors={["#78350f", "#facc15"]} // Dark Amber to a vibrant Gold
         style={styles.cardContainer}
       >
         {/* Card Header with User Info */}
@@ -89,15 +91,12 @@ export const WalletCard = ({ data }: WalletCardProps) => {
         </View>
 
         {/* Total Balance Section */}
-        <View style={styles.balanceSection}>
+        {/* <View style={styles.balanceSection}>
           <Text style={styles.balanceLabel}>Total Balance</Text>
           <Text style={styles.totalBalanceText}>
             {formatPrice(total, currency)}
           </Text>
-        </View>
-
-        {/* Divider */}
-        <View style={styles.divider} />
+        </View> */}
 
         {/* Available and Reserved Section */}
         <View style={styles.subBalanceContainer}>
@@ -142,13 +141,13 @@ const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 24,
     padding: SPACING_MD,
-    gap: 20,
-    marginHorizontal: SPACING_MD,
-    elevation: 10,
-    shadowColor: "#4c1d95",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    gap: 16,
+    // elevation: 10,
+    shadowColor: "#78350f",
+    // marginHorizontal: 4,
+    // shadowOffset: { width: 0, height: 10 },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 20,
   },
   cardHeader: {
     flexDirection: "row",
@@ -162,24 +161,20 @@ const styles = StyleSheet.create({
   },
   userHandle: {
     fontSize: 14,
-    color: "#e9d5ff",
+    color: "#fef3c7",
   },
   balanceSection: {
     alignItems: "center",
-    gap: SPACING_SM,
+    gap: 4,
   },
   balanceLabel: {
     fontSize: 16,
-    color: "#e9d5ff",
+    color: "#fef3c7",
   },
   totalBalanceText: {
     fontSize: 40,
     fontWeight: "bold",
     color: "#fff",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   subBalanceContainer: {
     flexDirection: "row",
@@ -191,7 +186,7 @@ const styles = StyleSheet.create({
   },
   subBalanceLabel: {
     fontSize: 14,
-    color: "#e9d5ff",
+    color: "#fef3c7",
   },
   subBalanceAmount: {
     fontSize: 16,
@@ -213,7 +208,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    backgroundColor: "rgba(255, 255, 255, 0.15)", // Semi-transparent white looks good on any gradient
   },
   actionLabel: {
     fontSize: 14,
