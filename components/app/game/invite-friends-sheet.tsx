@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/toast";
 import { View } from "@/components/ui/view";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { SPACING_LG, SPACING_MD, SPACING_SM } from "@/theme/globals";
+import { FlashList } from "@shopify/flash-list";
 import { X } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
@@ -153,7 +154,7 @@ export function InviteSheetContent({ onClose }: { onClose: () => void }) {
       </View>
 
       {/* Friends List */}
-      <FlatList
+      <FlashList
         data={filteredFriends}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

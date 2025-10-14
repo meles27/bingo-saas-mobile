@@ -68,8 +68,7 @@ export const CardTemplateList = () => {
           <BingoCard
             id={card.serial}
             layout={card.layout}
-            isInteractive={false} // For selection, not gameplay
-            onPress={() => handleToggleSelection(card.id)}
+            isInteractive={true} // For selection, not gameplay
           />
         )}
         style={{ flex: 1 }}

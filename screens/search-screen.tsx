@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
 import { SPACING_LG, SPACING_MD, SPACING_SM } from "@/theme/globals";
+import { FlashList } from "@shopify/flash-list";
 import {
   DoorOpenIcon,
   NewspaperIcon,
@@ -11,7 +12,6 @@ import {
   StoreIcon,
 } from "lucide-react-native";
 import React from "react";
-import { FlatList } from "react-native";
 
 const pharmacies = [
   {
@@ -213,7 +213,7 @@ const Search = () => {
         </Button>
       </View>
 
-      <FlatList
+      <FlashList
         data={pharmacies}
         keyExtractor={(item) => item.toString()}
         renderItem={({ item }) => (

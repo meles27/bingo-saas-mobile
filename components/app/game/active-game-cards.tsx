@@ -3,14 +3,9 @@ import { useQuery } from "@/hooks/base/api/useQuery";
 import { useGameStore } from "@/store/game-store";
 import { PaginatedResponse } from "@/types/api/base";
 import { GameCardListEntity } from "@/types/api/game/game-card.type";
+import { FlashList } from "@shopify/flash-list";
 import React from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { BingoCard } from "./bingo-card/bingo-card";
 
 const ListStateComponent = ({
@@ -58,7 +53,7 @@ export const ActiveGameCards = () => {
   const hasData = (myCardsQuery.data?.results?.length ?? 0) > 0;
 
   return (
-    <FlatList
+    <FlashList
       data={myCardsQuery.data?.results || []}
       numColumns={2}
       renderItem={({ item: card }) => (

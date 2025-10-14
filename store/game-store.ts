@@ -29,7 +29,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>(
       set({
         activeGame: data.activeGame,
         nextScheduledGame: data.nextScheduledGame,
-        daubedNumbers: new Set(),
       }),
 
     // The core logic change: a number can only be daubed if it has been called by the server.

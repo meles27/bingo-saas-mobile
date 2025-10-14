@@ -66,6 +66,7 @@ const MyGameCards = () => {
           id={card.template.serial}
           layout={card.template.layout}
           key={card.id}
+          isInteractive
         />
       )}
       keyExtractor={(item) => item.id}
