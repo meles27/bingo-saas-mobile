@@ -1,7 +1,6 @@
 import { urls } from "@/config/urls";
 import { socketManager } from "@/lib/socket/socket.manager";
-import { ConnectionStatus, SocketPayload } from "@/lib/socket/socket.schema";
-import { useSocketStore } from "@/store/socket-store";
+import { SocketPayload } from "@/lib/socket/socket.schema";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { type Socket } from "socket.io-client";
 
@@ -12,21 +11,12 @@ export interface UseSocketOptions {
 }
 export interface UseSocketReturn {
   socket: Socket | null;
-  status: ConnectionStatus;
-  error: Error | null;
   emit: <T>(event: string, payload: T, ack?: (res: any) => void) => void;
   on: <T>(event: string, handler: (response: SocketPayload<T>) => void) => void;
   off: (event: string, handler?: (...args: any[]) => void) => void;
 }
 
 const DEFAULT_URL = urls.getSockBaseUrl();
-
-// This object has a stable memory reference. It is created only once when the module loads.
-// It prevents the Zustand selector from returning a new object on every render.
-const STABLE_DEFAULT_STATE = {
-  status: ConnectionStatus.DISCONNECTED,
-  error: null,
-};
 
 /**
  * A production-ready hook that subscribes a component to a shared socket connection.
@@ -43,12 +33,6 @@ export const useSocket = ({
   );
 
   const [socket, setSocket] = useState<Socket | null>(null);
-
-  // This selector now returns a STABLE object reference when the connection
-  // state doesn't exist yet. This is the key to breaking the infinite re-render loop.
-  const { status, error } = useSocketStore(
-    (state) => state.connections[connectionKey] || STABLE_DEFAULT_STATE
-  );
 
   useEffect(() => {
     const socketInstance = socketManager.getSocket(url, namespace, token, [
@@ -93,12 +77,10 @@ export const useSocket = ({
   return useMemo(
     () => ({
       socket,
-      status,
-      error,
       emit,
       on,
       off,
     }),
-    [socket, status, error, emit, on, off]
+    [socket, emit, on, off]
   );
 };

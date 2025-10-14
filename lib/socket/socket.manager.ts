@@ -1,6 +1,4 @@
-import { useSocketStore } from "@/store/socket-store";
 import { io, Socket } from "socket.io-client";
-import { ConnectionStatus } from "./socket.schema";
 
 interface ManagedSocket {
   socket: Socket;
@@ -49,11 +47,6 @@ class SocketManager {
     managedSocket = { socket: newSocket, refCount: 1 };
     this.sockets.set(key, managedSocket);
 
-    // Immediately set the initial state in the store.
-    // This is crucial to ensure the hook sees the 'connecting' state on its first render.
-    useSocketStore
-      .getState()
-      .setConnectionState(key, ConnectionStatus.CONNECTING);
     this.addDefaultListeners(key, newSocket);
 
     return newSocket;
@@ -68,27 +61,21 @@ class SocketManager {
       if (managedSocket.refCount <= 0) {
         managedSocket.socket.disconnect();
         this.sockets.delete(key);
-        // The final, authoritative action is to remove the connection from the store.
-        useSocketStore.getState().removeConnection(key);
       }
     }
   }
 
   private addDefaultListeners(key: string, socket: Socket) {
-    const { setConnectionState } = useSocketStore.getState();
-
     socket.on("connect", () => {
-      setConnectionState(key, ConnectionStatus.CONNECTED);
+      console.log("connect", key);
     });
 
     socket.on("disconnect", () => {
-      // Simply report the disconnected state. The `releaseSocket` method handles the
-      // actual cleanup and removal from the store.
-      setConnectionState(key, ConnectionStatus.DISCONNECTED);
+      console.log("disconnect", key);
     });
 
     socket.on("connect_error", (err: Error) => {
-      setConnectionState(key, ConnectionStatus.ERROR, err);
+      console.log("connect_error", err);
     });
   }
 }

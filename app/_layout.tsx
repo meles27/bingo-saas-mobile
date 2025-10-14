@@ -1,8 +1,6 @@
 import { ToastProvider } from "@/components/ui/toast";
-import { useAuthStore } from "@/store/auth-store";
-// import { initializeSocketManagerSync } from "@/store/socket-store";
 import { useGameSubscription } from "@/hooks/game/use-game-subscription";
-import { useTenantStore } from "@/store/tenant-store";
+import { useAuthStore } from "@/store/auth-store";
 import { ThemeProvider } from "@/theme/theme-provider";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -13,13 +11,7 @@ import "../global.css";
 
 export default function RootLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const access = useAuthStore((state) => state.token.access);
-  const tenantId = useTenantStore((state) => state.tenantId);
-
-  useGameSubscription({
-    tenantId: tenantId,
-    token: access,
-  });
+  useGameSubscription();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

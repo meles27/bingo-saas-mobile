@@ -267,7 +267,7 @@
 // });
 
 import { RoundResultsSheetContent } from "@/components/app/game/round-results-sheet";
-import { InviteSheetContent } from "@/components/app/invite-friends-sheet";
+import { InviteSheetContent } from "@/components/app/game/invite-friends-sheet";
 import { BottomSheet, useBottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";

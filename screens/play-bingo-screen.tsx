@@ -1,34 +1,127 @@
-import { BingoHeader } from "@/components/app/active-game/bingo-heder";
-import { CalledNumbersDisplay } from "@/components/app/active-game/called-numbers-display";
-import MyGameCards from "@/components/app/active-game/my-game-cards";
-import { ParticleBackground } from "@/components/app/active-game/particle-background";
+import { CardTemplateList } from "@/components/app/card-template/card-template-list";
+import { AddCardSheet } from "@/components/app/game/add-card-sheet";
+import { BingoHeader } from "@/components/app/game/bingo-heder";
+import { CalledNumbersDisplay } from "@/components/app/game/called-numbers-display";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import { urls } from "@/config/urls";
-import { useQuery } from "@/hooks/base/api/useQuery";
-import { useAuthStore } from "@/store/auth-store";
+import { useVisibilityManager } from "@/hooks/base/use-visibility-control";
 import { useGameStore } from "@/store/game-store";
-import { useTenantStore } from "@/store/tenant-store";
 import { SPACING_SM } from "@/theme/globals";
-import { GameSyncStateEntity } from "@/types/api/game/game.type";
-import { useFocusEffect } from "expo-router";
+import { FlashList } from "@shopify/flash-list";
 import { Plus, Send } from "lucide-react-native";
-import React, { useCallback, useEffect } from "react";
-import { ActivityIndicator, StyleSheet } from "react-native";
+import { default as React } from "react";
+import { ActivityIndicator, StyleSheet, Text } from "react-native";
+
+const DATA = [
+  {
+    title: "First Item",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+  {
+    title:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
+  },
+];
+
+const MyList = () => {
+  return (
+    <FlashList
+      data={DATA}
+      renderItem={({ item }) => <Text>{item.title}</Text>}
+    />
+  );
+};
 
 const PRIMARY_COLOR = "#7f13ec";
 const BACKGROUND_COLOR = "#191022";
 
+type ActionType = "add-cart";
+
 export default function PlayBingoScreen() {
   const activeGame = useGameStore((state) => state.activeGame);
-  const status = useGameStore((state) => state.status);
+  const { states, actions } = useVisibilityManager<ActionType>(["add-cart"]);
+
   return (
     <View style={styles.container}>
-      <ParticleBackground />
+      {/* <ParticleBackground /> */}
 
-      {status == "connecting" && (
+      {!activeGame && (
         <ActivityIndicator
           style={{
             flex: 1,
@@ -39,13 +132,7 @@ export default function PlayBingoScreen() {
         />
       )}
 
-      {status == "error" && (
-        <View>
-          <Text>Error</Text>
-        </View>
-      )}
-
-      {status == "connected" && (
+      {activeGame && (
         <>
           <BingoHeader />
           <CalledNumbersDisplay
@@ -53,8 +140,9 @@ export default function PlayBingoScreen() {
             lastCalledNumber={activeGame?.lastNumberCalled}
           />
 
-          <MyGameCards />
-
+          {/* <MyListn /> */}
+          {/* <MyGameCards /> */}
+          <CardTemplateList />
           {/* FABs */}
           <Button
             icon={Send}
@@ -63,6 +151,7 @@ export default function PlayBingoScreen() {
           />
 
           <Button
+            onPress={() => actions.open("add-cart")}
             size="icon"
             style={[styles.fab, styles.fabRight, styles.neonGlow]}
           >
@@ -70,6 +159,12 @@ export default function PlayBingoScreen() {
           </Button>
         </>
       )}
+
+      <AddCardSheet
+        isVisible={states["add-cart"]}
+        onClose={() => actions.toggle("add-cart")}
+        onAddCards={(cards) => console.log(cards)}
+      />
     </View>
   );
 }

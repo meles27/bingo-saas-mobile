@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
+import { useVisibilityManager } from "@/hooks/base/use-visibility-control";
 import { SPACING_MD, SPACING_SM } from "@/theme/globals";
 import { UserWalletEntity } from "@/types/api/base/wallet.type";
 import { formatPrice } from "@/utils/format-price";
@@ -22,8 +23,10 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import DepositBalance from "./deposit-balance";
+import TransferBalance from "./transfer-balance";
+import WithdrawBalance from "./withdraw-balance";
 
-// ActionItem sub-component remains the same, but will inherit new theme colors
 const ActionItem = ({
   icon,
   label,
@@ -39,6 +42,7 @@ const ActionItem = ({
       size="icon"
       variant="ghost"
       style={styles.actionButton}
+      onPress={onPress}
     />
     <Text style={styles.actionLabel}>{label}</Text>
   </TouchableOpacity>
@@ -48,8 +52,15 @@ interface WalletCardProps {
   data: UserWalletEntity;
 }
 
+type ActionType = "transfer" | "withdraw" | "deposit";
+
 export const WalletCard = ({ data }: WalletCardProps) => {
   const { user, total, available, reserved, currency } = data;
+  const { states, actions } = useVisibilityManager<ActionType>([
+    "deposit",
+    "transfer",
+    "withdraw",
+  ]);
 
   // Animation values
   const opacity = useSharedValue(0);
@@ -90,20 +101,18 @@ export const WalletCard = ({ data }: WalletCardProps) => {
           </View>
         </View>
 
-        {/* Total Balance Section */}
-        {/* <View style={styles.balanceSection}>
-          <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.totalBalanceText}>
-            {formatPrice(total, currency)}
-          </Text>
-        </View> */}
-
         {/* Available and Reserved Section */}
         <View style={styles.subBalanceContainer}>
           <View style={styles.subBalanceItem}>
             <Text style={styles.subBalanceLabel}>Available</Text>
             <Text style={styles.subBalanceAmount}>
               {formatPrice(available, currency)}
+            </Text>
+          </View>
+          <View style={styles.balanceSection}>
+            <Text style={styles.balanceLabel}>Total Balance</Text>
+            <Text style={styles.totalBalanceText}>
+              {formatPrice(total, currency)}
             </Text>
           </View>
           <View style={styles.subBalanceItem}>
@@ -119,20 +128,34 @@ export const WalletCard = ({ data }: WalletCardProps) => {
           <ActionItem
             icon={ArrowDownToLine}
             label="Deposit"
-            onPress={() => console.log("Deposit pressed")}
+            onPress={() => actions.open("deposit")}
           />
           <ActionItem
             icon={ArrowUpFromLine}
             label="Withdraw"
-            onPress={() => console.log("Withdraw pressed")}
+            onPress={() => actions.open("withdraw")}
           />
           <ActionItem
             icon={ArrowRightLeft}
             label="Transfer"
-            onPress={() => console.log("Transfer pressed")}
+            onPress={() => actions.open("transfer")}
           />
         </View>
       </LinearGradient>
+
+      {/* bottom sheets */}
+      <TransferBalance
+        isVisible={states.transfer}
+        onClose={() => actions.toggle("transfer")}
+      />
+      <WithdrawBalance
+        isVisible={states.withdraw}
+        onClose={() => actions.toggle("withdraw")}
+      />
+      <DepositBalance
+        isVisible={states.deposit}
+        onClose={() => actions.toggle("deposit")}
+      />
     </Animated.View>
   );
 };
@@ -142,12 +165,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: SPACING_MD,
     gap: 16,
-    // elevation: 10,
+    elevation: 10,
     shadowColor: "#78350f",
-    // marginHorizontal: 4,
-    // shadowOffset: { width: 0, height: 10 },
-    // shadowOpacity: 0.3,
-    // shadowRadius: 20,
   },
   cardHeader: {
     flexDirection: "row",
@@ -165,6 +184,7 @@ const styles = StyleSheet.create({
   },
   balanceSection: {
     alignItems: "center",
+    transform: [{ translateY: -SPACING_MD }],
     gap: 4,
   },
   balanceLabel: {
@@ -172,7 +192,7 @@ const styles = StyleSheet.create({
     color: "#fef3c7",
   },
   totalBalanceText: {
-    fontSize: 40,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
   },

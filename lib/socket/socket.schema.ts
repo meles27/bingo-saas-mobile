@@ -1,12 +1,12 @@
-export const ConnectionStatus = {
-  CONNECTED: "connected",
-  DISCONNECTED: "disconnected",
-  CONNECTING: "connecting",
-  ERROR: "error",
-} as const;
+// export const ConnectionStatus = {
+//   CONNECTED: "connected",
+//   DISCONNECTED: "disconnected",
+//   CONNECTING: "connecting",
+//   ERROR: "error",
+// } as const;
 
-export type ConnectionStatus =
-  (typeof ConnectionStatus)[keyof typeof ConnectionStatus];
+// export type ConnectionStatus =
+//   (typeof ConnectionStatus)[keyof typeof ConnectionStatus];
 
 /**
  * Standardized status codes for all socket events.
@@ -14,7 +14,6 @@ export type ConnectionStatus =
 export const SocketStatus = {
   SUCCESS: "success",
   ERROR: "error",
-  INFO: "info",
   WARNING: "warning",
 } as const;
 

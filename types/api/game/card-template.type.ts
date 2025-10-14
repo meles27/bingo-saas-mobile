@@ -1,5 +1,5 @@
 export interface CardTemplateListEntity {
-  id: number;
+  id: string;
   serial: number;
   layout: Array<number>;
 }

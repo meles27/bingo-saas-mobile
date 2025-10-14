@@ -11,7 +11,7 @@ import { BlurView } from "expo-blur";
 import { Menu } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
-import { LiveIndicator } from "./live-indicator";
+import { GameIndicator } from "./game-indicator";
 
 const PRIMARY_COLOR = "#7f13ec";
 
@@ -37,8 +37,8 @@ export const BingoHeader = () => {
   // Helper to format the prize with a currency symbol if needed (adjust as necessary)
   const formattedPrize = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: activeGame?.game.currency || "USD",
-  }).format(parseFloat(activeGame?.game.prize));
+    currency: activeGame?.currency || "USD",
+  }).format(parseFloat(activeGame?.prize));
 
   return (
     <View style={styles.stickyHeader}>
@@ -46,24 +46,33 @@ export const BingoHeader = () => {
       <View style={styles.container}>
         <View style={styles.bottomRow}>
           {/* --- 3. Use dynamic data from the 'activeGame' prop --- */}
-          <View style={styles.infoColumn}>
-            <Text style={styles.infoLabel}>Prize:</Text>
-            <Text style={[styles.infoValue, { color: PRIMARY_COLOR }]}>
-              {formatPrice(activeGame?.game?.prize || 0)}
-            </Text>
+          <View>
+            <View style={[styles.infoColumn, { flexDirection: "row" }]}>
+              <Text style={styles.infoLabel}>Prize: </Text>
+              <Text style={[styles.infoValue, { color: PRIMARY_COLOR }]}>
+                {formatPrice(activeGame?.prize || 0)}
+              </Text>
+            </View>
+
+            <View style={[styles.infoColumn, { flexDirection: "row" }]}>
+              <Text style={styles.infoLabel}>Status: </Text>
+              <Text style={[styles.infoValue, { color: PRIMARY_COLOR }]}>
+                <GameIndicator status={activeGame?.status || "in_progress"} />
+              </Text>
+            </View>
           </View>
 
           <View style={styles.infoColumn}>
             <Text style={styles.infoLabel}>Game Code:</Text>
             <Text style={[styles.infoValue, { color: PRIMARY_COLOR }]}>
-              #{activeGame?.game.serial}
+              #{activeGame?.serial}
             </Text>
           </View>
 
-          <View style={styles.liveContainer}>
+          {/* <View style={styles.liveContainer}>
             <LiveIndicator />
             <Text style={{ color: PRIMARY_COLOR }}>Live</Text>
-          </View>
+          </View> */}
 
           {/* --- 4. Use the handler function from props --- */}
           <Button size="icon" onPress={toggleSidebar} style={styles.menuButton}>

@@ -1,4 +1,7 @@
+import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
+import { SPACING_SM } from "@/theme/globals";
+import { GameStatus, gameStatusMap } from "@/types/api/game/game.type";
 import React, { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
@@ -11,7 +14,11 @@ import Animated, {
 
 const PRIMARY_COLOR = "#7f13ec";
 
-export const LiveIndicator = () => {
+interface GameIndicatorProps {
+  status: GameStatus;
+}
+
+export const GameIndicator: React.FC<GameIndicatorProps> = ({ status }) => {
   const opacity = useSharedValue(1);
   const scale = useSharedValue(1);
 
@@ -27,9 +34,32 @@ export const LiveIndicator = () => {
   }));
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.ping, animatedStyle]} />
-      <View style={styles.dot} />
+    <View
+      style={{ flexDirection: "row", alignItems: "baseline", gap: SPACING_SM }}
+    >
+      <Text
+        style={{
+          color: gameStatusMap[status].color || PRIMARY_COLOR,
+          fontSize: 15,
+        }}
+      >
+        {gameStatusMap[status].label}
+      </Text>
+      <View style={styles.container}>
+        <Animated.View
+          style={[
+            styles.ping,
+            animatedStyle,
+            { backgroundColor: gameStatusMap[status].color || PRIMARY_COLOR },
+          ]}
+        />
+        <View
+          style={[
+            styles.dot,
+            { backgroundColor: gameStatusMap[status].color || PRIMARY_COLOR },
+          ]}
+        />
+      </View>
     </View>
   );
 };

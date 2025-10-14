@@ -1,7 +1,7 @@
 ###
 # this is for the game cards in the single game's game
 # LIST GAME CARDS
-GET {{ TENANT_BASE_URL }}/games/c4d5c5fb-2ba4-4319-98b3-b9a528bcd448/cards HTTP/1.1
+GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/cards HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -10,7 +10,7 @@ X-Tenant-ID: {{ tenantId }}
 
 ###
 # CREATE GAME CARD
-POST {{ TENANT_BASE_URL }}/games/c4d5c5fb-2ba4-4319-98b3-b9a528bcd448/cards HTTP/1.1
+POST {{ TENANT_BASE_URL }}/games/{{ gameId }}/cards HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -23,7 +23,7 @@ X-Tenant-ID: {{ tenantId }}
 
 ###
 # RETRIEVE GAME CARD
-GET {{ TENANT_BASE_URL }}/games/c4d5c5fb-2ba4-4319-98b3-b9a528bcd448/cards/{{ cardId }} HTTP/1.1
+GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/cards/{{ cardId }} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -32,7 +32,7 @@ X-Tenant-ID: {{ tenantId }}
 
 ###
 # DELETE  GAME GAME
-DELETE {{ TENANT_BASE_URL }}/games/c4d5c5fb-2ba4-4319-98b3-b9a528bcd448/cards/{{ cardId }} HTTP/1.1
+DELETE {{ TENANT_BASE_URL }}/games/{{ gameId }}/cards/{{ cardId }} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}

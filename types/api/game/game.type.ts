@@ -1,6 +1,20 @@
-import type { RoundStatus } from "./round.type";
+export type GameStatus =
+  | "scheduled"
+  | "in_progress"
+  | "paused"
+  | "completed"
+  | "cancelled";
 
-export type GameStatus = "pending" | "active" | "completed" | "cancelled";
+export const gameStatusMap: Record<
+  GameStatus,
+  { label: string; color: string }
+> = {
+  scheduled: { label: "Scheduled", color: "#3B82F6" }, // Blue
+  in_progress: { label: "In Progress", color: "#10B981" }, // Green
+  completed: { label: "Completed", color: "#8B5CF6" }, // Purple
+  cancelled: { label: "Cancelled", color: "#EF4444" }, // Red
+  paused: { label: "Paused", color: "#F59E0B" }, // Amber
+};
 
 export interface GameListEntity {
   id: string;
@@ -16,24 +30,21 @@ export interface GameListEntity {
 
 export interface GameDetailEntity {
   id: string;
-  name: string;
-  description: string | null;
+  serial: number;
+  description: string;
   status: GameStatus;
-  totalRounds: number;
+  prize: string;
   entryFee: string;
-  startedAt: string;
-  endedAt: string;
+  startedAt: string; // ISO timestamp
+  endedAt: string | null;
   currency: string;
-  createdAt: string;
-  updatedAt: string;
-  rounds: {
+  patterns: {
     id: string;
     name: string;
-    roundNumber: number;
-    status: RoundStatus;
-    prize: string; // decimal as string
-    startedAt: string;
-    endedAt: string | null;
+    description: string;
+    coordinates: [number, number][];
+    createdAt: string;
+    updatedAt: string;
   }[];
 }
 
@@ -63,52 +74,32 @@ export interface GameQueryParamsIface {
 
 interface _GameSyncStateEntity {
   activeGame: {
-    game: {
-      id: string;
-      serial: number;
-      description: string;
-      status: GameStatus;
-      prize: string;
-      entryFee: string;
-      startedAt: string; // ISO timestamp
-      endedAt: string | null;
-      currency: string;
-      patterns: {
-        id: string;
-        name: string;
-        description: string;
-        coordinates: [number, number][];
-        createdAt: string;
-        updatedAt: string;
-      }[];
-    };
+    id: string;
+    serial: number;
+    description: string;
+    status: GameStatus;
+    prize: string;
+    entryFee: string;
+    startedAt: string; // ISO timestamp
+    endedAt: string | null;
+    currency: string;
     lastNumberCalled: number;
     calledNumbers: number[];
-  } | null;
+  };
 
   nextScheduledGame: {
-    game: {
-      id: string;
-      serial: number;
-      description: string;
-      status: GameStatus;
-      prize: string;
-      entryFee: string;
-      startedAt: string; // ISO timestamp
-      endedAt: string | null;
-      currency: string;
-      patterns: {
-        id: string;
-        name: string;
-        description: string;
-        coordinates: [number, number][];
-        createdAt: string;
-        updatedAt: string;
-      }[];
-    };
+    id: string;
+    serial: number;
+    description: string;
+    status: GameStatus;
+    prize: string;
+    entryFee: string;
+    startedAt: string; // ISO timestamp
+    endedAt: string | null;
+    currency: string;
     lastNumberCalled: number;
     calledNumbers: number[];
-  } | null;
+  };
 }
 
 export type GameSyncStateEntity = Partial<_GameSyncStateEntity>;
