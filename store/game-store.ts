@@ -41,9 +41,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>(
       set((state) => {
         const newDaubs = new Set(state.daubedNumbers);
         if (newDaubs.has(num)) {
-          newDaubs.delete(num); // Un-daub
+          newDaubs.delete(num);
         } else {
-          newDaubs.add(num); // Daub
+          newDaubs.add(num);
         }
         return { daubedNumbers: newDaubs };
       });

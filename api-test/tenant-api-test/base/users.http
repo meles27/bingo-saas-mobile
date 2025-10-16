@@ -1,6 +1,6 @@
 ###
 # LIST USERS
-GET {{ TENANT_BASE_URL }}/users?includeDeleted=true HTTP/1.1
+GET {{ TENANT_BASE_URL }}/users?includeDeleted=true&status HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}

@@ -8,7 +8,7 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# get my wallet balance
+# get user wallet balance
 GET {{ TENANT_BASE_URL }}/wallet/user/{{userId}}/balance HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
@@ -25,7 +25,7 @@ X-Tenant-Subdomain: {{ subdomain }}
 X-Tenant-ID: {{ tenantId }}
 
 {
-  "amount": "5000",
+  "amount": "100",
   "gateway": "telebirr"
 }
 
@@ -39,7 +39,7 @@ X-Tenant-Subdomain: {{ subdomain }}
 X-Tenant-ID: {{ tenantId }}
 
 {
-  "amount": "130",
+  "amount": "67",
   "userId": "{{ userId }}"
 }
 
@@ -53,5 +53,5 @@ X-Tenant-Subdomain: {{ subdomain }}
 X-Tenant-ID: {{ tenantId }}
 
 {
-  "amount": 30
+  "amount": 34
 }

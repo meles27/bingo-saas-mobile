@@ -1,5 +1,6 @@
 export type GameStatus =
   | "scheduled"
+  | "waiting"
   | "in_progress"
   | "paused"
   | "completed"
@@ -10,6 +11,7 @@ export const gameStatusMap: Record<
   { label: string; color: string }
 > = {
   scheduled: { label: "Scheduled", color: "#3B82F6" }, // Blue
+  waiting: { label: "Waiting", color: "#8B5CF6" }, // Purple
   in_progress: { label: "In Progress", color: "#10B981" }, // Green
   completed: { label: "Completed", color: "#8B5CF6" }, // Purple
   cancelled: { label: "Cancelled", color: "#EF4444" }, // Red
@@ -35,7 +37,8 @@ export interface GameDetailEntity {
   status: GameStatus;
   prize: string;
   entryFee: string;
-  startedAt: string; // ISO timestamp
+  startedAt: string;
+  startedWaitingAt: string | null;
   endedAt: string | null;
   currency: string;
   patterns: {
@@ -80,11 +83,18 @@ interface _GameSyncStateEntity {
     status: GameStatus;
     prize: string;
     entryFee: string;
-    startedAt: string; // ISO timestamp
+    startedAt: string;
+    startedWaitingAt: string | null;
     endedAt: string | null;
     currency: string;
     lastNumberCalled: number;
     calledNumbers: number[];
+    patterns: Array<{
+      id: string;
+      name: string;
+      description: string;
+      coordinates: Array<[number, number]>;
+    }>;
   };
 
   nextScheduledGame: {
@@ -94,7 +104,8 @@ interface _GameSyncStateEntity {
     status: GameStatus;
     prize: string;
     entryFee: string;
-    startedAt: string; // ISO timestamp
+    startedAt: string;
+    startedWaitingAt: string | null;
     endedAt: string | null;
     currency: string;
     lastNumberCalled: number;

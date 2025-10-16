@@ -1,112 +1,16 @@
-import { CardTemplateList } from "@/components/app/card-template/card-template-list";
 import { AddCardSheet } from "@/components/app/game/add-card-sheet";
 import { BingoHeader } from "@/components/app/game/bingo-heder";
 import { CalledNumbersDisplay } from "@/components/app/game/called-numbers-display";
+import { PlayerCardList } from "@/components/app/game/player-card-list";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { View } from "@/components/ui/view";
 import { useVisibilityManager } from "@/hooks/base/use-visibility-control";
 import { useGameStore } from "@/store/game-store";
 import { SPACING_SM } from "@/theme/globals";
-import { FlashList } from "@shopify/flash-list";
 import { Plus, Send } from "lucide-react-native";
 import { default as React } from "react";
-import { ActivityIndicator, StyleSheet, Text } from "react-native";
-
-const DATA = [
-  {
-    title: "First Item",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-  {
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam facilis cum molestiae assumenda quam, alias perferendis libero nisi. Animi illo ut ipsa voluptatibus a velit, suscipit quaerat. Vel, dicta doloribus",
-  },
-];
-
-const MyList = () => {
-  return (
-    <FlashList
-      data={DATA}
-      renderItem={({ item }) => <Text>{item.title}</Text>}
-    />
-  );
-};
+import { ActivityIndicator, StyleSheet } from "react-native";
 
 const PRIMARY_COLOR = "#7f13ec";
 const BACKGROUND_COLOR = "#191022";
@@ -140,9 +44,7 @@ export default function PlayBingoScreen() {
             lastCalledNumber={activeGame?.lastNumberCalled}
           />
 
-          {/* <MyListn /> */}
-          {/* <MyGameCards /> */}
-          <CardTemplateList />
+          <PlayerCardList />
           {/* FABs */}
           <Button
             icon={Send}

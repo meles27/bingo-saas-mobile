@@ -1,6 +1,6 @@
 ###
 # LIST WINNERS
-GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/winners?search= HTTP/1.1
+GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/winners?search=&gameId={{ gameId }} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -15,6 +15,10 @@ Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
 X-Tenant-ID: {{ tenantId }}
 
+{
+  "templateId": "{{ cardTemplateId }}"
+}
+
 
 ###
 # RETRIEVE WINNER
@@ -26,8 +30,8 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# UPDATE WINNER
-PATCH {{ TENANT_BASE_URL }}/games/{{ gameId }}/winners/{{ winnerId }} HTTP/1.1
+# reject winner
+POST {{ TENANT_BASE_URL }}/games/{{ gameId }}/winners/{{ winnerId }}/reject HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -37,8 +41,8 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# DELETE WINNER
-DELETE {{ TENANT_BASE_URL }}/games/{{ gameId }}/winners/{{ winnerId }} HTTP/1.1
+# verify winner
+POST {{ TENANT_BASE_URL }}/games/{{ gameId }}/winners/{{ winnerId }}/verify HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}

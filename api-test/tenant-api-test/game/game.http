@@ -1,7 +1,7 @@
 ###
 # this is for the games in the single game
-# LIST GAMES
-GET {{ TENANT_BASE_URL }}/games?gameId={{gameId}} HTTP/1.1
+# LIST GAME GAMES
+GET {{ TENANT_BASE_URL }}/games?status=waiting HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -9,7 +9,7 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# CREATE GAME
+# CREATE GAME GAME
 POST {{ TENANT_BASE_URL }}/games HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
@@ -17,19 +17,19 @@ X-Tenant-Subdomain: {{ subdomain }}
 X-Tenant-ID: {{ tenantId }}
 
 {
-  "entryFee": "200.0",
+  "entryFee": "15.0",
   "startedAt": "2025-08-27T07:32:10.123Z",
   "currency": "ETB",
   "patternIds": [
     "4bd9bb3f-cd9e-49af-9073-3329d973f87e"
   ],
-  "prize": "100000.00",
+  "prize": "8500.00",
   "description": "this is description section"
 }
 
 
 ###
-# RETRIEVE active GAME
+# retrieve active game
 GET {{ TENANT_BASE_URL }}/games/active-game HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
@@ -38,7 +38,7 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# RETRIEVE GAME
+# RETRIEVE GAME GAME
 GET {{ TENANT_BASE_URL }}/games/{{ gameId }} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
@@ -55,11 +55,7 @@ X-Tenant-Subdomain: {{ subdomain }}
 X-Tenant-ID: {{ tenantId }}
 
 {
-  "prize": "50000",
-  "patternIds": [
-    "{{patternId}}",
-    "{{patternId1}}"
-  ]
+  "prize": "50000"
 }
 
 
@@ -109,11 +105,17 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# bingo calls related
-# bingo calls related
-# bingo calls related
+# list free available cards
+GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/available-cards HTTP/1.1
+Authorization: Bearer {{ access }}
+Content-Type: application/json
+X-Tenant-Subdomain: {{ subdomain }}
+X-Tenant-ID: {{ tenantId }}
+
+
+###
 # list game calls
-GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/bingo-calls HTTP/1.1
+GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/calls HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -122,7 +124,7 @@ X-Tenant-ID: {{ tenantId }}
 
 ###
 # retrieve game call
-GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/bingo-calls/{{ callId }} HTTP/1.1
+GET {{ TENANT_BASE_URL }}/games/{{ gameId }}/calls/9cfd1544-45bc-40e8-b0f3-89335ff86de8 HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}
@@ -130,29 +132,7 @@ X-Tenant-ID: {{ tenantId }}
 
 
 ###
-# call next number manually
-POST {{ TENANT_BASE_URL }}/games/{{ gameId }}/call-next-manually HTTP/1.1
-Authorization: Bearer {{ access }}
-Content-Type: application/json
-X-Tenant-Subdomain: {{ subdomain }}
-X-Tenant-ID: {{ tenantId }}
-
-{
-  "number": 3
-}
-
-
-###
-# call next number automatically
-POST {{ TENANT_BASE_URL }}/games/{{ gameId }}/call-next-number HTTP/1.1
-Authorization: Bearer {{ access }}
-Content-Type: application/json
-X-Tenant-Subdomain: {{ subdomain }}
-X-Tenant-ID: {{ tenantId }}
-
-
-###
-# OPTIONS  GAME
+# OPTIONS  GAME GAME
 OPTIONS {{ TENANT_BASE_URL }}/games/{{ gameId }} HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json

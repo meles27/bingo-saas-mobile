@@ -1,43 +1,139 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import { SPACING_XS } from "@/theme/globals";
-import React from "react";
+import { urls } from "@/config/urls";
+import { useApiResponseToast } from "@/hooks/base/api/use-api-response-toast";
+import { useMutation } from "@/hooks/base/api/useMutation";
+import { useGameStore } from "@/store/game-store";
+import { SPACING_SM, SPACING_XS } from "@/theme/globals";
+import { GameCardStatus } from "@/types/api/game/game-card.type";
+import { Loader2 } from "lucide-react-native";
+import React, { useEffect } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { CardCell } from "./card-cell";
 
 const PRIMARY_COLOR = "#7f13ec";
 
+type CallbackProps = "register" | "bingo" | "disqualify";
+
 interface BingoCardProps {
-  id: number;
+  id: string;
+  serial: number;
   layout: number[];
-  isInteractive?: boolean; // Controls if cells can be daubed and Bingo button is shown
-  isSelected?: boolean; // Optional visual highlight
-  onBingo?: () => void; // For interactive cards
-  highlight?: boolean; // Optional, only used for non-interactive cards
+  isInteractive?: boolean; // Controls if cells can be daubed
+  isOwned?: boolean; // Optional visual highlight
+  cardStatus?: GameCardStatus;
+  callback?: (type: CallbackProps) => void;
 }
 
 export const BingoCard = React.memo(
   ({
     id,
+    serial,
     layout,
+    isOwned = false,
+    cardStatus,
     isInteractive = true,
-    isSelected = false,
-    onBingo,
-    highlight = false,
+    callback,
   }: BingoCardProps) => {
-    const shouldHighlight = isInteractive ? isSelected : highlight;
+    const activeGame = useGameStore((state) => state.activeGame);
+
+    /**
+     * say bingo
+     */
+    const bingoMutation = useMutation<object, { templateId: string }>(
+      urls.getGameWinnersUrl(activeGame?.id || ""),
+      "POST",
+      {}
+    );
+
+    const registerMutation = useMutation<object, { templateId: string }>(
+      urls.getGameCardsUrl(activeGame?.id || ""),
+      "POST",
+      {}
+    );
+
+    useApiResponseToast({
+      isLoading: bingoMutation.isLoading,
+      isError: bingoMutation.isError,
+      error: bingoMutation.error,
+      isSuccess: bingoMutation.isSuccess,
+    });
+
+    useEffect(() => {
+      if (bingoMutation.isSuccess) {
+        callback?.("bingo");
+      }
+    }, [bingoMutation.isSuccess]);
+
+    useEffect(() => {
+      if (registerMutation.isSuccess) {
+        callback?.("register");
+      }
+    }, [registerMutation.isSuccess]);
+
+    const isPlaying =
+      activeGame?.status == "in_progress" &&
+      isInteractive &&
+      cardStatus != "disqualified" &&
+      isOwned;
+
+    const isRegisterable = activeGame?.status == "waiting" && isInteractive;
 
     return (
-      <View
-        style={[styles.cardContainer, shouldHighlight && styles.selectedCard]}
-      >
+      <View style={[styles.cardContainer]}>
         <View style={styles.content}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Card #{id}</Text>
-            {isInteractive && onBingo && (
-              <TouchableOpacity onPress={onBingo}>
-                <Badge>Bingo</Badge>
+            <Text style={styles.cardTitle}>Card #{serial}</Text>
+            {isPlaying && (
+              <Button
+                disabled={bingoMutation.isLoading}
+                onPress={() =>
+                  bingoMutation.execute({
+                    templateId: id,
+                  })
+                }
+                size="sm"
+                // variant="outline"
+                loading={bingoMutation.isLoading}
+                style={{
+                  height: 28,
+                  paddingHorizontal: SPACING_SM,
+                }}
+              >
+                Bingo
+              </Button>
+            )}
+
+            {isRegisterable && (
+              <Button
+                disabled={registerMutation.isLoading}
+                onPress={() =>
+                  registerMutation.execute({
+                    templateId: id,
+                  })
+                }
+                size="sm"
+                // variant="outline"
+                loading={registerMutation.isLoading}
+                style={{
+                  height: 28,
+                  paddingHorizontal: SPACING_SM,
+                }}
+              >
+                {/* <Badge> */}
+                {registerMutation.isLoading && (
+                  <Loader2 className="animate-spin mr-2" />
+                )}
+                Register
+                {/* </Badge> */}
+              </Button>
+            )}
+
+            {cardStatus == "disqualified" && (
+              <TouchableOpacity disabled>
+                <Badge>Disqualified</Badge>
               </TouchableOpacity>
             )}
           </View>
@@ -82,13 +178,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     margin: 4,
   },
-  selectedCard: {
-    borderColor: PRIMARY_COLOR,
-    shadowColor: PRIMARY_COLOR,
-    shadowRadius: 10,
-    shadowOpacity: 1,
-    elevation: 10,
-  },
+
   content: { padding: 8 },
   cardHeader: {
     flexDirection: "row",

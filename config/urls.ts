@@ -78,6 +78,8 @@ export const urls = {
   getGamesUrl: () => "/api/v1/tenant/games",
   getActiveGameUrl: () => "/api/v1/tenant/games/active-game",
   getGameUrl: (gameId: string) => `/api/v1/tenant/games/${gameId}`,
+  getGameFreeTemplatesUrl: (gameId: string) =>
+    `/api/v1/tenant/games/${gameId}/available-cards`,
   getGameCardsUrl: (gameId: string) => `/api/v1/tenant/games/${gameId}/cards`,
   getGameCardUrl: (gameId: string, cardId: string) =>
     `/api/v1/tenant/games/${gameId}/cards/${cardId}`,

@@ -1,6 +1,8 @@
+export type GameCardStatus = "active" | "disqualified";
+
 export interface GameCardListEntity {
   id: string;
-  fingerprint: string;
+  status: GameCardStatus;
   user: {
     id: string;
     firstName: string;

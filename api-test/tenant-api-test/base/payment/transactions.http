@@ -1,6 +1,6 @@
 ###
 # LIST TRANSACTIONS
-GET {{ TENANT_BASE_URL }}/transactions HTTP/1.1
+GET {{ TENANT_BASE_URL }}/transactions?userId=98b41cc6-15c6-4b7a-89e9-d7108767372d HTTP/1.1
 Authorization: Bearer {{ access }}
 Content-Type: application/json
 X-Tenant-Subdomain: {{ subdomain }}

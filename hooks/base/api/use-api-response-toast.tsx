@@ -53,7 +53,6 @@ const parseErrorForToast = (
 export const useApiResponseToast = <TSuccessData = unknown,>(
   state: {
     isLoading?: boolean;
-    isFetching?: boolean;
     isError: boolean;
     isSuccess: boolean;
     error?: AxiosBaseQueryErrorResponse | null;
@@ -61,11 +60,11 @@ export const useApiResponseToast = <TSuccessData = unknown,>(
   },
   options: UseApiResponseToastOptions<TSuccessData> = {}
 ) => {
-  const { isLoading, isFetching, isError, isSuccess, error, data } = state;
+  const { isLoading, isError, isSuccess, error, data } = state;
   const {
     loadingMessage = "Processing your request...",
     successMessage = "Operation successful!",
-    disableLoadingToast = false,
+    disableLoadingToast = true,
     disableSuccessToast = false,
     disableErrorToast = false,
     errorCallback,
@@ -81,7 +80,7 @@ export const useApiResponseToast = <TSuccessData = unknown,>(
   // --- Effect for Loading State ---
   useEffect(() => {
     // This effect runs only when the loading state *begins*.
-    const isCurrentlyLoading = isLoading ?? isFetching;
+    const isCurrentlyLoading = isLoading;
     if (isCurrentlyLoading && !disableLoadingToast) {
       toast({
         title: loadingMessage,
@@ -89,7 +88,7 @@ export const useApiResponseToast = <TSuccessData = unknown,>(
         duration: 2000, // Give loading a shorter, auto-dismissing duration
       });
     }
-  }, [isLoading, isFetching, disableLoadingToast, loadingMessage, toast]);
+  }, [isLoading, disableLoadingToast, loadingMessage, toast]);
 
   // --- Effect for Error State ---
   useEffect(() => {

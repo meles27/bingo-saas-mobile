@@ -4,13 +4,19 @@ import { useGameStore } from "@/store/game-store";
 import { PaginatedResponse } from "@/types/api/base";
 import { CardTemplateListEntity } from "@/types/api/game/card-template.type";
 import { GameCardListEntity } from "@/types/api/game/game-card.type";
-import { FlashList } from "@shopify/flash-list";
 import { useFocusEffect } from "expo-router";
 import React from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { BingoCard } from "../game/bingo-card/bingo-card";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { BingoCard } from "./bingo-card/bingo-card";
+import { FlashList } from "@shopify/flash-list";
 
-export const CardTemplateList = () => {
+export const PlayerCardList = () => {
   const activeGame = useGameStore((state) => state.activeGame);
 
   const cardTemplatesQuery = useQuery<
