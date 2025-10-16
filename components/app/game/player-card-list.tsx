@@ -1,20 +1,15 @@
+import { ApiError } from "@/components/api-error";
 import { urls } from "@/config/urls";
 import { useQuery } from "@/hooks/base/api/useQuery";
 import { useGameStore } from "@/store/game-store";
 import { PaginatedResponse } from "@/types/api/base";
 import { CardTemplateListEntity } from "@/types/api/game/card-template.type";
 import { GameCardListEntity } from "@/types/api/game/game-card.type";
+import { FlashList } from "@shopify/flash-list";
 import { useFocusEffect } from "expo-router";
 import React from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { BingoCard } from "./bingo-card/bingo-card";
-import { FlashList } from "@shopify/flash-list";
 
 export const PlayerCardList = () => {
   const activeGame = useGameStore((state) => state.activeGame);
@@ -23,7 +18,7 @@ export const PlayerCardList = () => {
     PaginatedResponse<CardTemplateListEntity>
   >(urls.getGameFreeTemplatesUrl(activeGame?.id || ""), {
     manual: true,
-    params: { limit: 100 },
+    params: { limit: 5 },
     skip: !activeGame?.id,
   });
 
@@ -60,9 +55,7 @@ export const PlayerCardList = () => {
       {isLoading && <ActivityIndicator />}
 
       {isError && (
-        <View>
-          <Text style={styles.errorText}>Error loading cards</Text>
-        </View>
+        <ApiError error={myCardsQuery.error || cardTemplatesQuery.error} />
       )}
 
       {isSuccess && (
@@ -81,7 +74,7 @@ export const PlayerCardList = () => {
             />
           )}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={{}}
           ListEmptyComponent={
             <View>
               <Text style={styles.emptyText}>No card templates available.</Text>
@@ -97,9 +90,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // position: "relative", // Needed for absolute positioning of children
-  },
-  listContent: {
-    padding: 4,
   },
 
   errorText: {

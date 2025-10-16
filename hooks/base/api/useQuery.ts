@@ -1,20 +1,11 @@
-import { globalAxiosInstance, tenantAxiosInstance } from "@/utils/interceptors";
+import {
+  AxiosBaseQueryErrorResponse,
+  globalAxiosInstance,
+  tenantAxiosInstance,
+} from "@/utils/interceptors";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-
-// --- Type Definitions (No Changes) ---
-
-/**
- * A standardized error response structure for API queries.
- */
-export interface AxiosBaseQueryErrorResponse {
-  status: number | undefined;
-  data: {
-    detail: string;
-    errors?: Record<string, unknown>;
-  };
-}
 
 // --- Discriminated Union for Query Result (No Changes) ---
 

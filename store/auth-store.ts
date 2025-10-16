@@ -1,28 +1,24 @@
 import { urls } from "@/config/urls";
 import { UserProfileEntity, UserStatus } from "@/types/api/base/user.type";
 import { tenantAxiosInstance } from "@/utils/interceptors";
-import type { JwtPayload } from "jwt-decode";
-import { jwtDecode } from "jwt-decode";
+import { universalStorage } from "@/utils/storage-adapter";
+import { jwtDecode, type JwtPayload } from "jwt-decode";
 import { create } from "zustand";
 
+// --- TYPE DEFINITIONS (Unchanged) ---
 export interface AuthToken {
   access: string;
   refresh: string;
 }
-
-export type PermissionScope = string[];
-
 export interface Permissions {
   global: string[];
 }
-
 export interface AuthResponse {
   token: AuthToken;
   permissions: Permissions;
   user: UserProfileEntity;
   isSystemUser: boolean;
 }
-
 export interface UserJwtPayload extends JwtPayload {
   id: string;
   username: string;
@@ -32,46 +28,43 @@ export interface UserJwtPayload extends JwtPayload {
   tenantId: string;
   subdomain: string;
 }
-
 type AsyncState = {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
   error: string | null;
 };
-
-// A tuple representing the outcome of an async operation: [data, error]
 type AsyncResult<T, E = unknown> = [T | null, E | null];
 
-type AuthStore = {
-  // STATE
-  token: AuthResponse["token"];
-  user: AuthResponse["user"] | null;
-  permissions: AuthResponse["permissions"] | null;
+// --- PERSISTENCE LOGIC ---
+const AUTH_STORAGE_KEY = "auth-state";
+
+type PersistedAuthState = {
+  token: AuthToken | null;
+  user: UserProfileEntity | null;
+  permissions: Permissions | null;
   isSystemUser: boolean;
+};
+
+// --- STORE DEFINITION ---
+type AuthStore = PersistedAuthState & {
   loginState: AsyncState;
   refreshState: AsyncState;
-
   // ACTIONS
+  hydrate: () => Promise<void>; // Action to load state from storage on the client
   login: (
     username: string,
     password: string
   ) => Promise<AsyncResult<AuthResponse>>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refresh: () => Promise<AsyncResult<AuthResponse>>;
-
   checkPermission: (permission: string) => boolean;
-
-  // SELECTORS / GETTERS
-  decodeJwtToken: (token: string) => UserJwtPayload | null;
+  // GETTERS
+  decodeJwtToken: (token: string | undefined) => UserJwtPayload | null;
   isAccessExpired: () => boolean;
   isRefreshExpired: () => boolean;
-  getAccessTimeLeft: () => number;
-  getRefreshTimeLeft: () => number;
   isAuthenticated: () => boolean;
 };
-
-// --- Initial State Definition ---
 
 const initialAsyncState: AsyncState = {
   isLoading: false,
@@ -80,15 +73,12 @@ const initialAsyncState: AsyncState = {
   error: null,
 };
 
-const initialState = {
-  // token: { access: "", refresh: "" },
-  token: {
-    access:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk4YjQxY2M2LTE1YzYtNGI3YS04OWU5LWQ3MTA4NzY3MzcyZCIsInVzZXJuYW1lIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJtZWxlcyIsImxhc3ROYW1lIjoiaGFpbGVzZWxhc3NpZSIsInN0YXR1cyI6ImFjdGl2ZSIsInRlbmFudElkIjoiNzY0ZDA1MTgtNmM3Mi00MzkzLWE0ZDYtMzFjNDA5OTJhN2IxIiwic3ViZG9tYWluIjoiYmV6YS1idXJnZXIiLCJpYXQiOjE3NTk5OTMzMDMsImV4cCI6MTc2MDU5ODEwM30.Op8eyQO7SnKORQMxN0_0qpvjcpblM2F4XUtOsvE1lHY",
-
-    refresh:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk4YjQxY2M2LTE1YzYtNGI3YS04OWU5LWQ3MTA4NzY3MzcyZCIsInVzZXJuYW1lIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJtZWxlcyIsImxhc3ROYW1lIjoiaGFpbGVzZWxhc3NpZSIsInN0YXR1cyI6ImFjdGl2ZSIsInRlbmFudElkIjoiNzY0ZDA1MTgtNmM3Mi00MzkzLWE0ZDYtMzFjNDA5OTJhN2IxIiwic3ViZG9tYWluIjoiYmV6YS1idXJnZXIiLCJpYXQiOjE3NTk5OTMzMDMsImV4cCI6MTc2MjU4NTMwM30.eb6r18Dkb8MuN6BXg5vaclLqAYXce5yxuCLEpAqMLWo",
-  },
+// The default state for the store, used on the server and before client-side hydration.
+const initialState: PersistedAuthState & {
+  loginState: AsyncState;
+  refreshState: AsyncState;
+} = {
+  token: null,
   user: null,
   isSystemUser: false,
   permissions: null,
@@ -96,155 +86,135 @@ const initialState = {
   refreshState: initialAsyncState,
 };
 
-// --- Store Implementation ---
+// --- STORE IMPLEMENTATION ---
+export const useAuthStore = create<AuthStore>()((set, get) => {
+  /**
+   * A custom implementation of `set` that automatically saves the state to storage.
+   */
+  const setWithPersistence = async (newState: Partial<AuthStore>) => {
+    set(newState);
+    const stateToPersist: PersistedAuthState = {
+      token: get().token,
+      user: get().user,
+      permissions: get().permissions,
+      isSystemUser: get().isSystemUser,
+    };
+    await universalStorage.setItem(
+      AUTH_STORAGE_KEY,
+      JSON.stringify(stateToPersist)
+    );
+  };
 
-export const useAuthStore = create<AuthStore>()((set, get) => ({
-  ...initialState,
+  return {
+    ...initialState,
 
-  login: async (username, password) => {
-    set({ loginState: { ...initialAsyncState, isLoading: true } });
+    hydrate: async () => {
+      try {
+        const storedState = await universalStorage.getItem(AUTH_STORAGE_KEY);
+        if (storedState && typeof storedState === "string") {
+          const persistedState = JSON.parse(storedState) as PersistedAuthState;
+          set(persistedState);
+        }
+      } catch (e) {
+        console.error("Failed to hydrate auth state from storage.", e);
+      }
+    },
 
-    try {
-      const response = await tenantAxiosInstance.post<AuthResponse>(
-        urls.getAuthTokenUrl(),
-        { username, password }
-      );
+    login: async (username, password) => {
+      set({ loginState: { ...initialAsyncState, isLoading: true } });
+      try {
+        const response = await tenantAxiosInstance.post<AuthResponse>(
+          urls.getAuthTokenUrl(),
+          { username, password }
+        );
+        await setWithPersistence({
+          token: response.data.token,
+          user: response.data.user,
+          isSystemUser: response.data.isSystemUser,
+          permissions: response.data.permissions,
+          loginState: { ...initialAsyncState, isSuccess: true },
+        });
+        return [response.data, null];
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.detail || "Login failed.";
+        set({
+          ...initialState,
+          loginState: {
+            ...initialAsyncState,
+            isError: true,
+            error: errorMessage,
+          },
+        });
+        await universalStorage.removeItem(AUTH_STORAGE_KEY);
+        return [null, error];
+      }
+    },
 
-      set({
-        token: response.data.token,
-        user: response.data.user,
-        isSystemUser: response.data.isSystemUser,
-        permissions: response.data.permissions,
-        loginState: { ...initialAsyncState, isSuccess: true },
-      });
+    logout: async () => {
+      set(initialState);
+      await universalStorage.removeItem(AUTH_STORAGE_KEY);
+    },
 
-      // CHANGED: Return data on success, with null for the error.
-      return [response.data, null];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Login failed:", error);
-      const errorMessage =
-        error.response?.data?.detail || "Login failed. Please try again.";
+    refresh: async () => {
+      const currentToken = get().token;
+      if (get().refreshState.isLoading || !currentToken?.refresh) {
+        return [null, { message: "Refresh not possible." }];
+      }
+      set({ refreshState: { ...initialAsyncState, isLoading: true } });
+      try {
+        const response = await tenantAxiosInstance.post<AuthResponse>(
+          urls.getAuthRefreshTokenUrl(),
+          { refresh: currentToken.refresh }
+        );
+        await setWithPersistence({
+          token: response.data.token,
+          user: response.data.user,
+          isSystemUser: response.data.isSystemUser,
+          permissions: response.data.permissions,
+          refreshState: { ...initialAsyncState, isSuccess: true },
+        });
+        return [response.data, null];
+      } catch (error: any) {
+        await get().logout(); // Logout will clear state and storage.
+        set({
+          refreshState: {
+            ...initialAsyncState,
+            isError: true,
+            error: "Session expired.",
+          },
+        });
+        return [null, error];
+      }
+    },
 
-      set({
-        ...initialState,
-        loginState: {
-          ...initialAsyncState,
-          isError: true,
-          error: errorMessage,
-        },
-      });
+    // --- GETTERS (updated for null safety) ---
+    checkPermission: (permission) =>
+      get().permissions?.global.includes(permission) ?? false,
 
-      // CHANGED: Return null for data, with the error object.
-      return [null, error];
-    }
-  },
+    decodeJwtToken: (token) => {
+      if (!token) return null;
+      try {
+        return jwtDecode<UserJwtPayload>(token);
+      } catch (e) {
+        return null;
+      }
+    },
 
-  logout: () => {
-    set(initialState);
-  },
+    isAccessExpired: () => {
+      const decoded = get().decodeJwtToken(get().token?.access);
+      if (!decoded?.exp) return true;
+      return decoded.exp < Date.now() / 1000;
+    },
 
-  refresh: async () => {
-    if (get().refreshState.isLoading) {
-      // Avoid returning anything meaningful if a refresh is already in progress
-      return [null, { message: "Refresh already in progress." }];
-    }
+    isRefreshExpired: () => {
+      const decoded = get().decodeJwtToken(get().token?.refresh);
+      if (!decoded?.exp) return true;
+      return decoded.exp < Date.now() / 1000;
+    },
 
-    set({ refreshState: { ...initialAsyncState, isLoading: true } });
-
-    try {
-      const response = await tenantAxiosInstance.post<AuthResponse>(
-        urls.getAuthRefreshTokenUrl(),
-        { refresh: get().token.refresh }
-      );
-
-      const newTokens: AuthResponse["token"] = {
-        ...get().token,
-        ...response.data.token,
-      };
-
-      set({
-        token: newTokens,
-        user: response.data?.user,
-        isSystemUser: response.data?.isSystemUser,
-        permissions: response.data?.permissions,
-        refreshState: { ...initialAsyncState, isSuccess: true },
-      });
-
-      return [response.data, null];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Token refresh failed:", error);
-      set({
-        refreshState: {
-          ...initialAsyncState,
-          isError: true,
-          error: "Session expired. Please log in again.",
-        },
-      });
-      get().logout(); // Logout user if refresh fails
-
-      // CHANGED: Return null for data, with the error object.
-      return [null, error];
-    }
-  },
-
-  // --- SELECTORS / GETTERS (No changes needed here) ---
-
-  checkPermission: (permission: string): boolean => {
-    const { permissions } = get();
-
-    if (!permissions) {
-      return false;
-    }
-
-    // 2. Check for a matching global permission.
-    if (permissions.global.includes(permission)) {
-      return true;
-    }
-
-    // 4. If no permission was found, deny access.
-    return false;
-  },
-
-  decodeJwtToken: (token: string) => {
-    if (!token) return null;
-    try {
-      return jwtDecode<UserJwtPayload>(token);
-    } catch (error) {
-      console.error("Failed to decode JWT:", error);
-      return null;
-    }
-  },
-
-  isAccessExpired: () => {
-    const decoded = get().decodeJwtToken(get().token.access);
-    if (!decoded?.exp) return true;
-    return decoded.exp < Date.now() / 1000;
-  },
-
-  isRefreshExpired: () => {
-    const decoded = get().decodeJwtToken(get().token.refresh);
-    if (!decoded?.exp) return true;
-    return decoded.exp < Date.now() / 1000;
-  },
-
-  getAccessTimeLeft: () => {
-    const decoded = get().decodeJwtToken(get().token.access);
-    if (!decoded?.exp) return 0;
-    const currentTime = Date.now() / 1000;
-    return Math.max(0, decoded.exp - currentTime);
-  },
-
-  getRefreshTimeLeft: () => {
-    const decoded = get().decodeJwtToken(get().token.refresh);
-    if (!decoded?.exp) return 0;
-    const currentTime = Date.now() / 1000;
-    return Math.max(0, decoded.exp - currentTime);
-  },
-
-  isAuthenticated: () => {
-    const hasToken = !!get().token.access;
-    return hasToken && !get().isAccessExpired();
-  },
-}));
+    isAuthenticated: () => {
+      const hasToken = !!get().token?.access;
+      return hasToken && !get().isAccessExpired();
+    },
+  };
+});

@@ -1,9 +1,9 @@
-import { GameSyncStateEntity } from "@/types/api/game/game.type";
+import { GameStatus, GameSyncStateEntity } from "@/types/api/game/game.type";
 import { create } from "zustand";
 
 interface GameStoreState {
-  activeGame: GameSyncStateEntity["activeGame"] | null;
-  nextScheduledGame: GameSyncStateEntity["nextScheduledGame"] | null;
+  activeGame: Partial<GameSyncStateEntity["activeGame"]>;
+  nextScheduledGame: Partial<GameSyncStateEntity["nextScheduledGame"]> | null;
   daubedNumbers: Set<number>;
   myCardsId: string[];
 }
@@ -15,7 +15,21 @@ interface GameStoreActions {
 }
 
 const initialState: GameStoreState = {
-  activeGame: null,
+  activeGame: {
+    id: "",
+    serial: 0,
+    description: "",
+    status: "un set" as GameStatus,
+    prize: "",
+    entryFee: "",
+    startedAt: "",
+    startedWaitingAt: null,
+    endedAt: null,
+    currency: "",
+    lastNumberCalled: 0,
+    calledNumbers: [],
+    patterns: [],
+  },
   nextScheduledGame: null,
   daubedNumbers: new Set(),
   myCardsId: [],
@@ -26,9 +40,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>(
     ...initialState,
 
     setGameState: (data) =>
-      set({
-        activeGame: data.activeGame,
-        nextScheduledGame: data.nextScheduledGame,
+      set((state) => {
+        return {
+          activeGame: data.activeGame,
+          nextScheduledGame: data.nextScheduledGame,
+          daubedNumbers:
+            state.activeGame?.id === data.activeGame?.id
+              ? state.daubedNumbers
+              : new Set(),
+        };
       }),
 
     // The core logic change: a number can only be daubed if it has been called by the server.

@@ -61,6 +61,13 @@ export const BingoCard = React.memo(
       isSuccess: bingoMutation.isSuccess,
     });
 
+    useApiResponseToast({
+      isLoading: registerMutation.isLoading,
+      isError: registerMutation.isError,
+      error: registerMutation.error,
+      isSuccess: registerMutation.isSuccess,
+    });
+
     useEffect(() => {
       if (bingoMutation.isSuccess) {
         callback?.("bingo");
@@ -95,10 +102,11 @@ export const BingoCard = React.memo(
                   })
                 }
                 size="sm"
-                // variant="outline"
+                variant="outline"
                 loading={bingoMutation.isLoading}
                 style={{
                   height: 28,
+                  backgroundColor: "orange",
                   paddingHorizontal: SPACING_SM,
                 }}
               >
@@ -119,15 +127,14 @@ export const BingoCard = React.memo(
                 loading={registerMutation.isLoading}
                 style={{
                   height: 28,
+                  backgroundColor: "blue",
                   paddingHorizontal: SPACING_SM,
                 }}
               >
-                {/* <Badge> */}
                 {registerMutation.isLoading && (
                   <Loader2 className="animate-spin mr-2" />
                 )}
                 Register
-                {/* </Badge> */}
               </Button>
             )}
 

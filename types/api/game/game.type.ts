@@ -110,6 +110,12 @@ interface _GameSyncStateEntity {
     currency: string;
     lastNumberCalled: number;
     calledNumbers: number[];
+    patterns: Array<{
+      id: string;
+      name: string;
+      description: string;
+      coordinates: Array<[number, number]>;
+    }>;
   };
 }
 

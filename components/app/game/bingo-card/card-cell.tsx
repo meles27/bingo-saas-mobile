@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: "#ffffff20",
+    borderColor: "#0f0f0f50",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 4,
