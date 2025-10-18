@@ -39,24 +39,24 @@ export const GameIndicator: React.FC<GameIndicatorProps> = ({ status }) => {
     >
       <Text
         style={{
-          color: gameStatusMap[status].color || PRIMARY_COLOR,
+          color: gameStatusMap[status]?.color || PRIMARY_COLOR,
           fontSize: 15,
         }}
       >
-        {gameStatusMap[status].label}
+        {gameStatusMap[status]?.label}
       </Text>
       <View style={styles.container}>
         <Animated.View
           style={[
             styles.ping,
             animatedStyle,
-            { backgroundColor: gameStatusMap[status].color || PRIMARY_COLOR },
+            { backgroundColor: gameStatusMap[status]?.color || PRIMARY_COLOR },
           ]}
         />
         <View
           style={[
             styles.dot,
-            { backgroundColor: gameStatusMap[status].color || PRIMARY_COLOR },
+            { backgroundColor: gameStatusMap[status]?.color || PRIMARY_COLOR },
           ]}
         />
       </View>

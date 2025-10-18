@@ -2,7 +2,6 @@ import { AddCardSheet } from "@/components/app/game/add-card-sheet";
 import { BingoHeader } from "@/components/app/game/bingo-heder";
 import { CalledNumbersDisplay } from "@/components/app/game/called-numbers-display";
 import { PlayerCardList } from "@/components/app/game/player-card-list";
-import AsyncStorageDemo from "@/components/test/async-storage-demo";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { View } from "@/components/ui/view";
@@ -25,7 +24,6 @@ export default function PlayBingoScreen() {
   return (
     <View style={styles.container}>
       {/* <ParticleBackground /> */}
-      <AsyncStorageDemo />
       <BingoHeader />
       <CalledNumbersDisplay
         calledNumbers={activeGame?.calledNumbers || []}

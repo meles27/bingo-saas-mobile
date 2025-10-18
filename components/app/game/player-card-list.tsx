@@ -1,6 +1,7 @@
 import { ApiError } from "@/components/api-error";
 import { urls } from "@/config/urls";
 import { useQuery } from "@/hooks/base/api/useQuery";
+import { useAuthStore } from "@/store/auth-store";
 import { useGameStore } from "@/store/game-store";
 import { PaginatedResponse } from "@/types/api/base";
 import { CardTemplateListEntity } from "@/types/api/game/card-template.type";
@@ -13,7 +14,7 @@ import { BingoCard } from "./bingo-card/bingo-card";
 
 export const PlayerCardList = () => {
   const activeGame = useGameStore((state) => state.activeGame);
-
+  const user = useAuthStore((state) => state.user);
   const cardTemplatesQuery = useQuery<
     PaginatedResponse<CardTemplateListEntity>
   >(urls.getGameFreeTemplatesUrl(activeGame?.id || ""), {
@@ -25,7 +26,7 @@ export const PlayerCardList = () => {
   const myCardsQuery = useQuery<PaginatedResponse<GameCardListEntity>>(
     urls.getGameCardsUrl(activeGame?.id || ""),
     {
-      params: { limit: 100 },
+      params: { limit: 100, userId: user?.id },
       skip: !activeGame?.id,
     }
   );
@@ -71,6 +72,14 @@ export const PlayerCardList = () => {
                 index < (myCardsQuery.data?.results.length + 3 || 0)
               }
               isOwned={index < (myCardsQuery.data?.results.length || 0)}
+              callback={(actionType) => {
+                if (actionType == "register") {
+                  myCardsQuery.refetch();
+                  cardTemplatesQuery.refetch();
+                } else if (actionType == "bingo") {
+                  console.log("bingo");
+                }
+              }}
             />
           )}
           keyExtractor={(item) => item.id}

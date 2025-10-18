@@ -6,9 +6,8 @@ export type GameStatus =
   | "completed"
   | "cancelled";
 
-export const gameStatusMap: Record<
-  GameStatus,
-  { label: string; color: string }
+export const gameStatusMap: Partial<
+  Record<GameStatus, { label: string; color: string }>
 > = {
   scheduled: { label: "Scheduled", color: "#3B82F6" }, // Blue
   waiting: { label: "Waiting", color: "#8B5CF6" }, // Purple

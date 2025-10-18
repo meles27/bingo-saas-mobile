@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { ThemeProvider } from "@/theme/theme-provider";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useLayoutEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,7 +12,12 @@ import "../global.css";
 
 export default function RootLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const hydrate = useAuthStore((state) => state.hydrate);
   useGameSubscription();
+
+  useLayoutEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

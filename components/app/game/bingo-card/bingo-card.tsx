@@ -5,6 +5,7 @@ import { View } from "@/components/ui/view";
 import { urls } from "@/config/urls";
 import { useApiResponseToast } from "@/hooks/base/api/use-api-response-toast";
 import { useMutation } from "@/hooks/base/api/useMutation";
+import { useAuthStore } from "@/store/auth-store";
 import { useGameStore } from "@/store/game-store";
 import { SPACING_SM, SPACING_XS } from "@/theme/globals";
 import { GameCardStatus } from "@/types/api/game/game-card.type";
@@ -24,7 +25,7 @@ interface BingoCardProps {
   isInteractive?: boolean; // Controls if cells can be daubed
   isOwned?: boolean; // Optional visual highlight
   cardStatus?: GameCardStatus;
-  callback?: (type: CallbackProps) => void;
+  callback?: (actionType: CallbackProps) => void;
 }
 
 export const BingoCard = React.memo(
@@ -38,6 +39,7 @@ export const BingoCard = React.memo(
     callback,
   }: BingoCardProps) => {
     const activeGame = useGameStore((state) => state.activeGame);
+    const user = useAuthStore((state) => state.user);
 
     /**
      * say bingo
@@ -86,7 +88,14 @@ export const BingoCard = React.memo(
       cardStatus != "disqualified" &&
       isOwned;
 
-    const isRegisterable = activeGame?.status == "waiting" && isInteractive;
+    const isRegisterable = activeGame?.status == "waiting";
+
+    const handleRegisteration = (info: {
+      userId: string;
+      templateId: string;
+    }) => {
+      registerMutation.execute(info);
+    };
 
     return (
       <View style={[styles.cardContainer]}>
@@ -116,25 +125,32 @@ export const BingoCard = React.memo(
 
             {isRegisterable && (
               <Button
-                disabled={registerMutation.isLoading}
+                disabled={registerMutation.isLoading || isOwned}
                 onPress={() =>
-                  registerMutation.execute({
+                  handleRegisteration({
+                    userId: user?.id || "",
                     templateId: id,
                   })
                 }
                 size="sm"
                 // variant="outline"
+
                 loading={registerMutation.isLoading}
-                style={{
-                  height: 28,
-                  backgroundColor: "blue",
-                  paddingHorizontal: SPACING_SM,
-                }}
+                style={[
+                  {
+                    height: 28,
+                    backgroundColor: "blue",
+                    paddingHorizontal: SPACING_SM,
+                  },
+                  {
+                    backgroundColor: isOwned ? "green" : undefined,
+                  },
+                ]}
               >
                 {registerMutation.isLoading && (
                   <Loader2 className="animate-spin mr-2" />
                 )}
-                Register
+                {isOwned ? "Registered" : "Register"}
               </Button>
             )}
 

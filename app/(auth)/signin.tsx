@@ -14,7 +14,7 @@ import {
   FileLock,
   Github,
   LucideIcon,
-  Phone,
+  User,
 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
@@ -36,11 +36,19 @@ import { z } from "zod";
 
 // --- 1. VALIDATION SCHEMA using Zod ---
 // We define the shape and rules for our form data here.
+// const signInSchema = z.object({
+//   phone: z
+//     .string()
+//     .min(1, "Phone number is required.")
+//     .min(10, "Please enter a valid phone number."),
+//   password: z
+//     .string()
+//     .min(1, "Password is required.")
+//     .min(6, "Password must be at least 6 characters."),
+// });
+
 const signInSchema = z.object({
-  phone: z
-    .string()
-    .min(1, "Phone number is required.")
-    .min(10, "Please enter a valid phone number."),
+  username: z.string().min(3, "Phone number is required."),
   password: z
     .string()
     .min(1, "Password is required.")
@@ -114,7 +122,7 @@ const SignInScreen = () => {
   // Submission Handler
   const onSubmit = async (data: SignInFormData) => {
     try {
-      await login(data.phone, data.password);
+      await login(data.username, data.password);
 
       router.replace("/(tabs)/play"); // Adjust this to your main route
     } catch (error: any) {
@@ -156,11 +164,11 @@ const SignInScreen = () => {
           <View style={styles.inputGroup}>
             <ControlledInput
               control={control}
-              name="phone"
+              name="username"
               errors={errors}
-              // label="Phone Number"
-              placeholder="Enter your phone number"
-              icon={Phone}
+              // label="Username Number"
+              placeholder="Enter your username number"
+              icon={User}
             />
             <ControlledInput
               control={control}
