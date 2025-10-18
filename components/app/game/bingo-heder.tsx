@@ -1,14 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
-import { useSidebar } from "@/hooks/base/use-sidebar";
-import { useAuthStore } from "@/store/auth-store";
 import { useGameStore } from "@/store/game-store";
 import { SPACING_SM } from "@/theme/globals";
 import { formatPrice } from "@/utils/format-price";
 import { BlurView } from "expo-blur";
-import { Menu } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
 import { GameIndicator } from "./game-indicator";
@@ -22,23 +17,7 @@ const PRIMARY_COLOR = "#7f13ec";
  * @param {BingoHeaderProps} props - The component props.
  */
 export const BingoHeader = () => {
-  const { toggleSidebar } = useSidebar();
-  const access = useAuthStore((state) => state.token?.access);
-
   const activeGame = useGameStore((state) => state.activeGame);
-
-  // --- 2. Gracefully handle the case where there is no active game ---
-  if (!activeGame) {
-    // You can return null to render nothing, or return a placeholder skeleton view.
-    // Returning null is often the cleanest approach.
-    return null;
-  }
-
-  // Helper to format the prize with a currency symbol if needed (adjust as necessary)
-  const formattedPrize = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: activeGame?.currency || "USD",
-  }).format(parseFloat(activeGame?.prize));
 
   return (
     <View style={styles.stickyHeader}>
@@ -62,6 +41,14 @@ export const BingoHeader = () => {
             </View>
           </View>
 
+          <View style={styles.lastNumberContainer}>
+            <View style={styles.lastNumberBadge}>
+              <Text style={styles.lastNumberText}>
+                {activeGame?.lastNumberCalled || "--"}
+              </Text>
+            </View>
+          </View>
+
           <View style={styles.infoColumn}>
             <Text style={styles.infoLabel}>Game Code:</Text>
             <Text style={[styles.infoValue, { color: PRIMARY_COLOR }]}>
@@ -69,15 +56,10 @@ export const BingoHeader = () => {
             </Text>
           </View>
 
-          {/* <View style={styles.liveContainer}>
-            <LiveIndicator />
-            <Text style={{ color: PRIMARY_COLOR }}>Live</Text>
-          </View> */}
-
           {/* --- 4. Use the handler function from props --- */}
-          <Button size="icon" onPress={toggleSidebar} style={styles.menuButton}>
+          {/* <Button size="icon" onPress={toggleSidebar} style={styles.menuButton}>
             <Icon name={Menu} color="white" size={24} />
-          </Button>
+          </Button> */}
         </View>
       </View>
     </View>
@@ -122,9 +104,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    // Position it absolutely to ensure it's always centered regardless of text length
     // position: "absolute",
     // left: "50%",
     transform: [{ translateX: -40 }], // Adjust this value to perfectly center your content
+  },
+
+  lastNumberContainer: {
+    marginVertical: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  lastNumberBadge: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: PRIMARY_COLOR,
+    borderWidth: 2,
+    borderRadius: 50,
+    width: 48,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: PRIMARY_COLOR,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+
+  lastNumberText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "700",
+    fontFamily: "Space Grotesk",
   },
 });
